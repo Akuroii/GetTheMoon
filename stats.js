@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${CHANNEL_ID}&key=${API_KEY}`;
     const r = await fetch(url);
     const json = await r.json();
 
@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     }
 
     const stats = json.items[0].statistics;
+    const snippet = json.items[0].snippet;
 
     // Cache this response at the edge for 60 seconds, so repeat visits
     // don't spend extra YouTube API quota.
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
       subscribers: parseInt(stats.subscriberCount, 10),
       views: parseInt(stats.viewCount, 10),
       videos: parseInt(stats.videoCount, 10),
+      avatar: snippet.thumbnails.medium.url,
       updatedAt: new Date().toISOString()
     });
   } catch (err) {
