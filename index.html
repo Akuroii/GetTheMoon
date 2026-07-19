@@ -43,9 +43,12 @@
   .brand-group{ display:flex; align-items:center; gap:12px; }
   .avatar-orbit{ position:relative; width:36px; height:36px; }
   .avatar-orbit .ring{ position:absolute; inset:-6px; border:1px dashed var(--line); border-radius:50%; animation: spin 30s linear infinite; }
-  .avatar-orbit img{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; }
-  .brand{ font-weight:700; font-size:15px; letter-spacing:0.14em; text-transform: uppercase; }
-  .brand span{ color: var(--gold); }
+  .avatar-orbit img{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; cursor:pointer; }
+  .brand{
+    font-weight:700; font-size:15px; letter-spacing:0.14em; text-transform: uppercase;
+    background: linear-gradient(90deg, #ff5ea8, #7c6fee, #4d7dff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
   .top-right{ display:flex; align-items:center; gap:16px; }
   .live-dot{ display:flex; align-items:center; gap:6px; font-family:'Space Grotesk', sans-serif; font-size:11px; letter-spacing:0.1em; color: var(--text-dim); text-transform:uppercase; }
   .live-dot::before{ content:''; width:6px; height:6px; border-radius:50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); animation: blink 2s ease-in-out infinite; }
@@ -62,8 +65,11 @@
   .sub-line{ color: var(--text-dim); font-size: 16px; margin-bottom: 50px; }
 
   .moon-stage{ position: relative; width: 320px; height: 320px; margin: 0 auto 36px; cursor: pointer; }
-  .orbit-ring{ position:absolute; inset: -34px; border: 1px dashed var(--line); border-radius: 50%; animation: spin 40s linear infinite; }
-  .orbit-ring .dot{ position:absolute; width:6px; height:6px; border-radius:50%; background: var(--violet); box-shadow: 0 0 8px var(--violet); }
+  .orbit-ring{ position:absolute; inset: -34px; border: 1px dashed var(--line); border-radius: 50%; animation: spin 22s linear infinite; }
+  .orbit-ring .dot{ position:absolute; border-radius:50%; }
+  .orbit-ring .dot.d-violet{ width:9px; height:9px; background: var(--violet); box-shadow: 0 0 10px 2px var(--violet); }
+  .orbit-ring .dot.d-gold{ width:6px; height:6px; background: var(--gold); box-shadow: 0 0 8px 2px var(--gold); }
+  .orbit-ring .dot.d-pink{ width:7px; height:7px; background: var(--pink); box-shadow: 0 0 9px 2px var(--pink); }
   @keyframes spin{ to{ transform: rotate(360deg); } }
 
   .moon{
@@ -74,16 +80,16 @@
   }
   .moon-photo{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-    filter: brightness(0.45) saturate(0.85);
+    filter: grayscale(0.25) brightness(0.75) contrast(1.05);
     opacity:0; transition: opacity 0.8s ease;
   }
   .moon-photo.loaded{ opacity:1; }
   .moon-fill{
-    position:absolute; left:0; right:0; bottom:0;
-    height: calc(var(--fill, 0) * 100%);
-    background: linear-gradient(180deg, rgba(245,196,83,0.05), rgba(245,196,83,0.85));
-    mix-blend-mode: overlay;
-    transition: height 1.4s cubic-bezier(.2,.8,.2,1);
+    position:absolute; inset:0; border-radius:50%;
+    box-shadow: inset 0 0 0 2px rgba(245,196,83, calc(var(--fill, 0) * 0.9)),
+                inset 0 0 30px 4px rgba(245,196,83, calc(var(--fill, 0) * 0.6));
+    transition: box-shadow 1.4s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
   }
   .moon-glow{
     position:absolute; inset: -40px; border-radius:50%;
@@ -135,8 +141,17 @@
 
   #celebrate{ position: fixed; inset:0; z-index: 50; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at center, #000 0%, #000 30%, rgba(0,0,0,0.95) 60%); opacity:0; pointer-events:none; transition: opacity 1.2s ease; }
   #celebrate.show{ opacity:1; pointer-events:all; }
-  .horizon{ width: 120px; height:120px; border-radius:50%; background: #000; box-shadow: 0 0 60px 20px var(--pink), 0 0 120px 60px rgba(255,94,168,0.4); animation: pulseHorizon 2s ease-in-out infinite; }
-  @keyframes pulseHorizon{ 50%{ box-shadow: 0 0 90px 30px var(--pink), 0 0 160px 80px rgba(255,94,168,0.5);} }
+  .horizon{
+    width: 220px; height:220px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--pink), var(--violet), #4d7dff, var(--pink));
+    -webkit-mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    filter: blur(2px);
+    box-shadow: 0 0 70px 12px rgba(124,111,238,0.45);
+    animation: ringSpin 7s linear infinite, ringPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes ringSpin{ to{ transform:rotate(360deg); } }
+  @keyframes ringPulse{ 50%{ filter:blur(3px) brightness(1.25); } }
   #celebrate .msg{ position:absolute; text-align:center; font-family:'Spectral', serif; font-style:italic; font-size: clamp(22px,4vw,34px); color: var(--gold); padding: 0 20px; }
   #celebrate .hint{ position:absolute; bottom:40px; font-family:'Space Grotesk', sans-serif; font-size:12px; color: var(--text-dim); }
 
@@ -188,9 +203,9 @@
 
     <div class="moon-stage" id="moonStage">
       <div class="orbit-ring">
-        <div class="dot" style="top:50%; left:-3px;"></div>
-        <div class="dot" style="top:-3px; left:50%;"></div>
-        <div class="dot" style="bottom:-3px; left:50%;"></div>
+        <div class="dot d-violet" style="top:50%; left:-3px;"></div>
+        <div class="dot d-gold" style="top:-3px; left:50%;"></div>
+        <div class="dot d-pink" style="bottom:-3px; left:50%;"></div>
       </div>
       <div class="moon-glow"></div>
       <div class="moon">
@@ -403,10 +418,15 @@ function triggerCelebration(customMsg){
 }
 document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
 
-let moonClicks = 0;
 document.getElementById('moonStage').addEventListener('click', () => {
-  moonClicks++;
-  if (moonClicks >= 5){ moonClicks = 0; triggerCelebration(STRINGS[currentLang].darkSide); }
+  window.open('https://www.youtube.com/@GetTheMoon', '_blank');
+});
+
+let avatarClicks = 0;
+document.getElementById('avatarImg').addEventListener('click', (e) => {
+  e.stopPropagation();
+  avatarClicks++;
+  if (avatarClicks >= 5){ avatarClicks = 0; triggerCelebration(STRINGS[currentLang].darkSide); }
 });
 
 async function fetchStats(){
@@ -472,6 +492,12 @@ document.getElementById('remToggle').addEventListener('click', () => {
   remClicks++;
   if (remClicks >= 3){ document.body.classList.toggle('rem-cursor'); remClicks = 0; }
 });
+
+setInterval(() => {
+  const brand = document.querySelector('.brand');
+  brand.classList.add('glitching');
+  setTimeout(() => brand.classList.remove('glitching'), 320);
+}, 9000 + Math.random() * 4000);
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
