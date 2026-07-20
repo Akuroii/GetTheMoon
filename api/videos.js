@@ -11,7 +11,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=25&key=${API_KEY}`;
+    // NOTE: bumped maxResults from 25 -> 50 (YouTube's per-call max) so the
+    // Milestone Journey's "All uploads" mode has more than the last 25 to
+    // show. If the channel has more than 50 uploads total, "All uploads"
+    // will still only show the most recent 50 — paginating past that would
+    // need playlistItems' pageToken, which isn't wired up yet. Fine for now
+    // since "Journey" (the default view) only ever needs a handful anyway.
+    const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=50&key=${API_KEY}`;
     const plRes = await fetch(plUrl);
     const plJson = await plRes.json();
 
@@ -34,20 +40,29 @@ export default async function handler(req, res) {
       viewsById[v.id] = parseInt(v.statistics.viewCount || '0', 10);
     });
 
+    // Full dated list — this is what the Milestone Journey timeline plots.
+    // publishedAt is what lets the front end lay videos out left-to-right
+    // in true time order, and filter them into Journey / 12mo / 6mo / All.
     const videos = items.map(it => ({
       id: it.snippet.resourceId.videoId,
       title: it.snippet.title,
-      views: viewsById[it.snippet.resourceId.videoId] || 0
-    }));
+      views: viewsById[it.snippet.resourceId.videoId] || 0,
+      publishedAt: it.snippet.publishedAt
+    })).sort((a, b) => new Date(a.publishedAt) - new Date(b.publishedAt));
 
-    const recent = videos.slice(0, 6);
+    const recent = [...videos].reverse().slice(0, 6);
     const popular = [...videos].sort((a, b) => b.views - a.views).slice(0, 6);
+
+    // `milestoneReachedAt` (when the current bracket started) is resolved
+    // and persisted in api/stats.js, not here — the front end fetches it
+    // from /api/stats and uses it purely to filter this `videos` array for
+    // "Journey" mode.
 
     // These change rarely, so cache longer than the stats endpoint (10 minutes)
     // to keep well within YouTube's free daily quota.
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
 
-    res.status(200).json({ recent, popular, updatedAt: new Date().toISOString() });
+    res.status(200).json({ recent, popular, videos, updatedAt: new Date().toISOString() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'videos_unavailable' });
