@@ -1,1 +1,930 @@
-# GetTheMoon
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get The Moon · 100K</title>
+<meta name="description" content="Get The Moon — chasing 100,000 subscribers, one orbit at a time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg: #04040a;
+    --surface: #0d0d1f;
+    --surface-2: #14142b;
+    --text: #f0eefc;
+    --text-dim: #9d98c2;
+    --gold: #f5c453;
+    --violet: #7c6fee;
+    --pink: #ff5ea8;
+    --silver: #c7c6d6;
+    --line: rgba(240,238,252,0.10);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: var(--bg); color: var(--text); font-family: 'Spectral', serif; overflow-x: hidden; }
+  html[dir="rtl"] body{ font-family: 'Tajawal', sans-serif; }
+  html[dir="rtl"] h1{ font-family: 'Tajawal', sans-serif; font-style: normal; }
+
+  body.rem-cursor, body.rem-cursor *{
+    /* cursor: url('rem-cursor.png') 8 8, auto !important; */
+  }
+
+  a{color:inherit; text-decoration:none;}
+  ::selection{ background: var(--violet); color: #fff; }
+  button{ font: inherit; }
+
+  :focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+
+  #sky{ position: fixed; inset:0; z-index:0; pointer-events:none; }
+  #dust{ position: fixed; inset:0; z-index:2; pointer-events:none; }
+
+  .wrap{ position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 24px 120px; }
+
+  header.top{ display:flex; align-items:center; justify-content:space-between; padding: 28px 0 8px; font-family:'Space Grotesk', sans-serif; }
+  .brand-group{ display:flex; align-items:center; gap:12px; }
+  .avatar-orbit{ position:relative; width:36px; height:36px; }
+  .avatar-orbit .ring{ position:absolute; inset:-6px; border:1px dashed var(--line); border-radius:50%; animation: spin 30s linear infinite; }
+  .avatar-orbit .ring .adot{ position:absolute; width:3px; height:3px; border-radius:50%; background:var(--gold); box-shadow:0 0 5px 1px var(--gold); top:-1.5px; left:50%; }
+  .avatar-orbit img{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; cursor:pointer; }
+  .brand{
+    font-weight:700; font-size:15px; letter-spacing:0.14em; text-transform: uppercase;
+    background: linear-gradient(90deg, #ff5ea8, #7c6fee, #4d7dff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .top-right{ display:flex; align-items:center; gap:16px; }
+  .live-dot{ display:flex; align-items:center; gap:6px; font-family:'Space Grotesk', sans-serif; font-size:11px; letter-spacing:0.1em; color: var(--text-dim); text-transform:uppercase; }
+  .live-dot::before{ content:''; width:6px; height:6px; border-radius:50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink{ 50%{ opacity:0.3; } }
+  .icon-btn{ width:26px; height:26px; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-dim); font-family:'Space Grotesk', sans-serif; }
+  .icon-btn:hover{ border-color: var(--violet); color: var(--text); }
+  .rem-toggle{ width:10px; height:10px; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; }
+  .rem-toggle:hover{ background: var(--pink); border-color: var(--pink); }
+
+  .hero{ text-align:center; padding: 60px 0 20px; }
+  .eyebrow{ font-family:'Space Grotesk', sans-serif; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 18px; }
+  h1{ font-family:'Spectral', serif; font-style: italic; font-weight: 400; font-size: clamp(28px, 5vw, 46px); line-height: 1.15; margin: 0 0 8px; }
+  h1 em{ color: var(--gold); font-style: normal; font-weight:600; }
+  .sub-line{ color: var(--text-dim); font-size: 16px; margin-bottom: 50px; }
+
+  .moon-stage{ position: relative; width: 320px; height: 320px; margin: 0 auto 36px; cursor: pointer; }
+  .orbit-ring{ position:absolute; inset: -34px; border: 1px dashed var(--line); border-radius: 50%; animation: spin 22s linear infinite; }
+  .orbit-ring .dot{ position:absolute; border-radius:50%; }
+  .orbit-ring .dot.d-violet{ width:9px; height:9px; background: var(--violet); box-shadow: 0 0 10px 2px var(--violet); }
+  .orbit-ring .dot.d-gold{ width:6px; height:6px; background: var(--gold); box-shadow: 0 0 8px 2px var(--gold); }
+  .orbit-ring .dot.d-pink{ width:7px; height:7px; background: var(--pink); box-shadow: 0 0 9px 2px var(--pink); }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .moon{
+    position:absolute; inset: 24px; border-radius: 50%;
+    background: #0a0a16;
+    box-shadow: inset -20px -20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--line);
+    overflow: hidden;
+  }
+  .moon-photo{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    filter: grayscale(0.25) brightness(0.75) contrast(1.05);
+    opacity:0; transition: opacity 0.8s ease;
+  }
+  .moon-photo.loaded{ opacity:1; }
+  .moon-fill{
+    position:absolute; inset:0; border-radius:50%;
+    box-shadow: inset 0 0 0 2px rgba(180,110,255, calc(var(--fill, 0) * 0.95)),
+                inset 0 0 26px 4px rgba(255,94,168, calc(var(--fill, 0) * 0.55)),
+                inset 0 0 40px 8px rgba(77,125,255, calc(var(--fill, 0) * 0.35));
+    transition: box-shadow 1.4s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
+  }
+  .moon-glow{
+    position:absolute; inset: -40px; border-radius:50%;
+    background: radial-gradient(circle, rgba(180,110,255,0.28), rgba(255,94,168,0.12) 45%, transparent 68%);
+    filter: blur(8px); opacity: calc(var(--fill, 0) * 1.1);
+    transition: opacity 1.4s ease; pointer-events:none;
+  }
+
+  .count-wrap{ text-align:center; }
+  .count{ font-family:'IBM Plex Mono', monospace; font-size: clamp(38px, 7vw, 58px); font-weight:500; letter-spacing: 0.01em; }
+  .count-pulse{
+    display:inline-block; width:16px; height:16px; border-radius:50%;
+    background: radial-gradient(circle, var(--pink), var(--violet));
+    animation: countPulse 1.1s ease-in-out infinite;
+  }
+  @keyframes countPulse{ 50%{ transform:scale(1.4); opacity:0.6; } }
+  .count-label{ font-family:'Space Grotesk', sans-serif; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin-top: 4px; }
+  .updated-line{ font-family:'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); opacity:0.5; margin-top:10px; }
+
+  /* ============ MILESTONE JOURNEY ============ */
+  .mj{
+    max-width: 760px; margin: 46px auto 0; padding: 26px 26px 22px;
+    border: 1px solid var(--line); border-radius: 20px;
+    background: linear-gradient(180deg, rgba(124,111,238,0.06), rgba(255,94,168,0.015) 60%, transparent);
+    text-align: left;
+  }
+  html[dir="rtl"] .mj{ text-align: right; }
+
+  .mj-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+  .mj-eyebrow{ font-family:'Space Grotesk', sans-serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-dim); }
+  .mj-controls{ display:flex; align-items:center; gap:10px; direction: ltr; }
+  .mj-modes{ display:flex; gap:2px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .mj-mode{ font-family:'Space Grotesk', sans-serif; font-size:11px; padding:6px 12px; border-radius:999px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; transition: background .2s ease, color .2s ease; }
+  .mj-mode:hover{ color: var(--text); }
+  .mj-mode.active{ background: var(--surface-2); color: var(--gold); }
+  .mj-expand{ width:28px; height:28px; flex:0 0 auto; border-radius:50%; border:1px solid var(--line); background:transparent; color:var(--text-dim); display:flex; align-items:center; justify-content:center; cursor:pointer; transition: border-color .2s, color .2s, transform .2s; }
+  .mj-expand:hover{ border-color:var(--violet); color:var(--text); }
+  .mj-expand svg{ width:13px; height:13px; transition: transform .3s ease; }
+  .mj-expand[aria-pressed="true"] svg{ transform: rotate(180deg); }
+
+  .mj-progress{ display:flex; align-items:center; gap:16px; direction: ltr; }
+  .mj-ms{ text-align:center; flex:0 0 auto; min-width:64px; }
+  .mj-ms-num{ font-family:'IBM Plex Mono', monospace; font-size:15px; }
+  .mj-ms-lbl{ font-family:'Space Grotesk', sans-serif; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-top:2px; }
+  .mj-ms-start .mj-ms-num{ color: var(--silver); }
+  .mj-ms-end .mj-ms-num{ color: var(--gold); }
+
+  .mj-track-col{ flex:1; min-width:0; }
+  .mj-track{ position:relative; height:6px; border-radius:999px; background:var(--surface); border:1px solid var(--line); overflow:hidden; }
+  .mj-fill{ position:absolute; inset:0 auto 0 0; width:0%; border-radius:999px; background: linear-gradient(90deg, var(--violet), var(--gold)); box-shadow: 0 0 12px -2px var(--gold); transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+  .mj-current{ margin-top:8px; text-align:center; font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--text-dim); }
+  .mj-current strong{ color: var(--text); font-weight:500; }
+
+  .mj-orbit-wrap{ position:relative; margin-top: 34px; }
+  .mj-orbit-scroll{ overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding-bottom: 4px; }
+  .mj-orbit-scroll::-webkit-scrollbar{ height:4px; }
+  .mj-orbit-scroll::-webkit-scrollbar-thumb{ background: var(--line); border-radius:2px; }
+  .mj-orbit-line{ position:relative; height: 56px; min-width: 100%; direction: ltr; }
+  .mj-orbit-line::before{
+    content:''; position:absolute; left:0; right:0; top:50%;
+    border-top: 1px dashed var(--line);
+  }
+  .mj-orbit-track{ position:relative; height:100%; transition: min-width .35s ease; }
+
+  .mj-asteroid{
+    position:absolute; top:50%; transform: translate(-50%,-50%);
+    background:none; border:none; padding:2px; cursor:pointer; z-index:1;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+  }
+  .mj-asteroid svg{ display:block; width:20px; height:20px; overflow: visible; filter: drop-shadow(0 0 4px rgba(124,111,238,0.55)); transition: filter .22s ease; }
+  .mj-asteroid.featured svg{ filter: drop-shadow(0 0 6px rgba(245,196,83,0.5)); }
+  .mj-asteroid.popular svg{ filter: drop-shadow(0 0 9px rgba(245,196,83,0.75)); }
+  .mj-asteroid:hover, .mj-asteroid:focus-visible{ transform: translate(-50%,-50%) scale(1.35) rotate(8deg); z-index:2; }
+  .mj-asteroid:hover svg, .mj-asteroid:focus-visible svg{ filter: drop-shadow(0 0 12px rgba(245,196,83,0.9)) brightness(1.15); }
+  .mj-asteroid:focus-visible{ outline-offset: 4px; border-radius:50%; }
+
+  .mj-tip{
+    position:absolute; bottom: 30px; left:50%; transform: translateX(-50%) translateY(4px);
+    width: 172px; background: var(--surface); border:1px solid var(--line); border-radius:10px;
+    overflow:hidden; opacity:0; pointer-events:none; transition: opacity .16s ease, transform .16s ease;
+    box-shadow: 0 14px 32px -10px rgba(0,0,0,0.65); z-index: 6;
+  }
+  .mj-asteroid:hover .mj-tip, .mj-asteroid:focus-visible .mj-tip{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+  .mj-tip img{ width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--surface-2); }
+  .mj-tip-info{ padding:8px 10px; }
+  .mj-tip-title{ font-family:'Space Grotesk', sans-serif; font-size:11px; line-height:1.32; color:var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .mj-tip-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--text-dim); margin-top:5px; }
+
+  .mj-caption{ margin-top:16px; text-align:center; font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--text-dim); }
+  .mj-empty{ text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--text-dim); padding: 18px 0; }
+
+  @media (max-width: 640px){
+    .mj{ padding: 20px 16px 18px; border-radius:16px; }
+    .mj-head{ margin-bottom:18px; }
+    .mj-ms{ min-width:52px; }
+    .mj-ms-num{ font-size:13px; }
+    .mj-mode{ padding:5px 9px; font-size:10px; }
+  }
+
+  .stats{ display:flex; justify-content:center; gap: 48px; margin-top: 44px; flex-wrap: wrap; }
+  .stat{ text-align:center; }
+  .stat .num{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size: 22px; }
+  .stat .lbl{ font-family:'Space Grotesk', sans-serif; font-size: 11px; letter-spacing:0.16em; text-transform:uppercase; color: var(--text-dim); margin-top:2px; }
+
+  .platforms{ display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top: 60px; }
+  .pill{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); display:flex; align-items:center; gap:8px; transition: box-shadow .2s, transform .2s; }
+  .pill:hover{ box-shadow: 0 0 18px -4px var(--violet); transform: translateY(-2px); }
+  .pill .dotc{ width:6px; height:6px; border-radius:50%; }
+
+  .section-head{ font-family:'Space Grotesk', sans-serif; font-size: 12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin: 90px 0 18px; display:flex; align-items:center; gap:12px; }
+  .section-head::after{ content:''; flex:1; height:1px; background: var(--line); }
+
+  .carousel{ display:flex; gap:16px; overflow-x:auto; padding-bottom: 12px; scroll-snap-type: x mandatory; min-height: 130px; }
+  .carousel::-webkit-scrollbar{ height:6px; }
+  .carousel::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
+  .carousel-msg{ font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--text-dim); padding: 20px 4px; }
+  .vcard{ scroll-snap-align:start; flex: 0 0 240px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow:hidden; cursor:pointer; transition: transform .2s, box-shadow .2s; }
+  .vcard:hover{ transform: translateY(-4px); box-shadow: 0 0 24px -6px var(--violet), 0 0 40px -10px var(--gold); }
+  .vcard .thumb{ aspect-ratio: 16/9; background: var(--surface-2) center/cover; }
+  .vcard .info{ padding: 12px 14px; }
+  .vcard .title{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .vcard .meta{ font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); margin-top:6px; }
+
+  footer{ text-align:center; margin-top: 100px; font-family:'Space Grotesk', sans-serif; font-size: 12px; color: var(--text-dim); }
+
+  #celebrate{ position: fixed; inset:0; z-index: 50; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at center, #000 0%, #000 30%, rgba(0,0,0,0.95) 60%); opacity:0; pointer-events:none; transition: opacity 1.2s ease; }
+  #celebrate.show{ opacity:1; pointer-events:all; }
+  .cparticle{
+    position:fixed; width:8px; height:8px; border-radius:50%;
+    transform:scale(0); opacity:0; z-index:51;
+    transition: left 1.1s cubic-bezier(.4,0,.2,1), top 1.1s cubic-bezier(.4,0,.2,1),
+                transform 1.1s cubic-bezier(.4,0,.2,1), opacity 1.1s ease;
+    pointer-events:none;
+  }
+  .cparticle.pop{ opacity:1; transform:scale(1.4); }
+  .cparticle.suck{ transform:scale(0); opacity:0; }
+  .horizon{
+    width: 220px; height:220px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--pink), var(--violet), #4d7dff, var(--pink));
+    -webkit-mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    filter: blur(2px);
+    box-shadow: 0 0 70px 12px rgba(124,111,238,0.45);
+    animation: ringSpin 7s linear infinite, ringPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes ringSpin{ to{ transform:rotate(360deg); } }
+  @keyframes ringPulse{ 50%{ filter:blur(3px) brightness(1.25); } }
+  .celebrate-text{ position:relative; z-index:2; text-align:center; opacity:0; transition:opacity 1s ease; }
+  .celebrate-text.show{ opacity:1; }
+  #celebrate .msg{ text-align:center; font-family:'Spectral', serif; font-style:italic; font-size: clamp(22px,4vw,34px); color: var(--gold); padding: 0 20px; }
+  #celebrate .sub{ margin-top:10px; font-family:'Space Grotesk', sans-serif; font-size:13px; color: var(--text-dim); }
+  #celebrate .hint{ position:absolute; bottom:40px; left:50%; transform:translateX(-50%); font-family:'Space Grotesk', sans-serif; font-size:12px; color: var(--text-dim); }
+
+  @keyframes glitchFlicker{
+    0%{ text-shadow:none; transform:translate(0,0); opacity:1; }
+    20%{ text-shadow:-2px 0 var(--pink), 2px 0 var(--violet); transform:translate(-1px,0); opacity:0.85; }
+    40%{ text-shadow:2px 0 var(--violet), -2px 0 #e2483f; transform:translate(1px,0); opacity:1; }
+    60%{ text-shadow:-1px 0 #e2483f, 1px 0 var(--pink); transform:translate(0,0); opacity:0.9; }
+    100%{ text-shadow:none; transform:translate(0,0); opacity:1; }
+  }
+  .glitching{ animation: glitchFlicker 0.3s steps(2,end) 1; }
+
+  @media (prefers-reduced-motion: reduce){
+    .orbit-ring, .horizon, .avatar-orbit .ring{ animation: none; }
+    .moon-fill, .moon-glow, .moon-photo{ transition: none; }
+    .glitching{ animation:none; }
+    .mj-asteroid, .mj-asteroid svg, .mj-fill, .mj-expand svg{ transition: none; }
+  }
+  @media (max-width: 560px){
+    .moon-stage{ width: 240px; height:240px; }
+    .stats{ gap: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+<canvas id="dust"></canvas>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand-group">
+      <div class="avatar-orbit">
+        <div class="ring"><div class="adot"></div></div>
+        <img id="avatarImg" src="" alt="GetTheMoon avatar" style="display:none">
+      </div>
+      <div class="brand">get<span>the</span>moon</div>
+    </div>
+    <div class="top-right">
+      <div class="live-dot" id="liveLabel">live</div>
+      <button class="icon-btn" id="langToggle" title="Language">EN</button>
+      <div class="rem-toggle" id="remToggle" title="???"></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow" id="txtEyebrow">The subscriber watch</div>
+    <h1 id="txtHeadline">Every orbit brings us <em>closer</em><br>to the Moon.</h1>
+    <div class="sub-line" id="txtSubline">Updating on its own — no refresh needed.</div>
+
+    <div class="moon-stage" id="moonStage">
+      <div class="orbit-ring">
+        <div class="dot d-violet" style="top:50%; left:-3px;"></div>
+        <div class="dot d-gold" style="top:-3px; left:50%;"></div>
+        <div class="dot d-pink" style="bottom:-3px; left:50%;"></div>
+      </div>
+      <div class="moon-glow"></div>
+      <div class="moon">
+        <img class="moon-photo" id="moonPhoto" src="" alt="">
+        <div class="moon-fill"></div>
+      </div>
+    </div>
+
+    <div class="count-wrap">
+      <div class="count" id="countNum">🌑</div>
+      <div class="count-label" id="txtSubscribers">Subscribers</div>
+      <div class="updated-line" id="updatedLine"></div>
+    </div>
+
+    <!-- ============ MILESTONE JOURNEY ============ -->
+    <div class="mj" id="milestoneJourney" aria-label="Milestone journey">
+      <div class="mj-head">
+        <span class="mj-eyebrow" id="txtJourneyEyebrow">Milestone Journey</span>
+        <div class="mj-controls">
+          <div class="mj-modes" id="mjModes" role="tablist" aria-label="Timeline range">
+            <button class="mj-mode active" data-mode="journey" role="tab" aria-selected="true" id="mjModeJourney">Journey</button>
+            <button class="mj-mode" data-mode="12m" role="tab" aria-selected="false" id="mjMode12">12mo</button>
+            <button class="mj-mode" data-mode="6m" role="tab" aria-selected="false" id="mjMode6">6mo</button>
+            <button class="mj-mode" data-mode="all" role="tab" aria-selected="false" id="mjModeAll">All</button>
+          </div>
+          <button class="mj-expand" id="mjExpand" aria-pressed="false" aria-label="Expand timeline" title="Expand timeline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mj-progress">
+        <div class="mj-ms mj-ms-start">
+          <div class="mj-ms-num" id="mjStart">—</div>
+          <div class="mj-ms-lbl" id="txtReached">reached</div>
+        </div>
+        <div class="mj-track-col">
+          <div class="mj-track"><div class="mj-fill" id="mjFill"></div></div>
+          <div class="mj-current" id="mjCurrent">—</div>
+        </div>
+        <div class="mj-ms mj-ms-end">
+          <div class="mj-ms-num" id="mjEnd">—</div>
+          <div class="mj-ms-lbl" id="txtNext">next</div>
+        </div>
+      </div>
+
+      <div class="mj-orbit-wrap">
+        <div class="mj-orbit-scroll">
+          <div class="mj-orbit-line" id="mjOrbitLine">
+            <div class="mj-orbit-track" id="mjOrbitTrack"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mj-caption" id="mjCaption">loading…</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statViews">—</div><div class="lbl" id="txtViews">Total Views</div></div>
+      <div class="stat"><div class="num" id="statVideos">—</div><div class="lbl" id="txtVideos">Videos</div></div>
+      <div class="stat"><div class="num" id="statNext">—</div><div class="lbl" id="txtMilestone">Next Milestone</div></div>
+    </div>
+
+    <div class="platforms" id="platformRow"></div>
+  </section>
+
+  <div class="section-head" id="txtRecentHead">Recent uploads</div>
+  <div class="carousel" id="carouselRecent"><div class="carousel-msg">loading…</div></div>
+
+  <div class="section-head" id="txtPopularHead">Fan favorites</div>
+  <div class="carousel" id="carouselPopular"><div class="carousel-msg">loading…</div></div>
+
+  <footer id="txtFooter">made with orbits and a little stardust · getthemoon</footer>
+</div>
+
+<div id="celebrate">
+  <div class="horizon"></div>
+  <div class="celebrate-text" id="celebrateText">
+    <div class="msg" id="celebrateMsg">We got the Moon.</div>
+    <div class="sub" id="celebrateSub"></div>
+  </div>
+  <div class="hint" id="celebrateHint">click anywhere to close</div>
+</div>
+
+<script>
+const CONFIG = {
+  goal: 100000,
+  testGoal: null,
+  pollMs: 30000,
+  milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000],
+  platforms: [
+    { label: "Main Channel", color: "#ff5ea8", url: "https://www.youtube.com/@GetTheMoon" },
+    { label: "EN Channel",   color: "#7c6fee", url: "https://www.youtube.com/@GetTheMoonus" },
+    { label: "TikTok",       color: "#f5c453", url: "https://www.tiktok.com/@getthemoon923" },
+    { label: "Facebook",     color: "#7c6fee", url: "https://www.facebook.com/profile.php?id=61584399300636" },
+    { label: "Discord",      color: "#f5c453", url: "https://discord.gg/ANdBQrkaCn" },
+  ]
+};
+
+// Set to false once your /api/videos endpoint returns real `videos` + `milestoneReachedAt`.
+// See note at bottom of file for the small backend addition this expects.
+const MJ_USE_MOCK = true;
+
+const STRINGS = {
+  en: { dir:"ltr", langLabel:"EN", live:"live", eyebrow:"The subscriber watch",
+    headline:'Every orbit brings us <em>closer</em><br>to the Moon.',
+    subline:"Updating on its own — no refresh needed.",
+    subscribers:"Subscribers", views:"Total Views", videos:"Videos", milestone:"Next Milestone",
+    recentHead:"Recent uploads", popularHead:"Fan favorites",
+    footer:"made with orbits and a little stardust · getthemoon",
+    celebrateHint:"click anywhere to close", darkSide:"You found the dark side of the Moon.",
+    newStart:"A new orbit begins.",
+    loading:"loading…", videosUnavailable:"videos unavailable right now",
+    journeyEyebrow:"Milestone Journey", reached:"reached", next:"next",
+    modeJourney:"Journey", mode12:"12mo", mode6:"6mo", modeAll:"All",
+    expand:"Expand timeline", collapse:"Collapse timeline",
+    currentFmt:(subs,pct)=>`${subs.toLocaleString()} subscribers · ${pct}% of the way there`,
+    captionFmt:(n,from,to)=>`${n} upload${n===1?'':'s'} · ${from} → ${to} · click an asteroid to watch`,
+    noUploads:"no uploads in this range yet" },
+  ar: { dir:"rtl", langLabel:"AR", live:"مباشر", eyebrow:"مراقبة المشتركين",
+    headline:'كل مدار يقربنا <em>أكثر</em><br>من القمر.',
+    subline:"يتحدث نفسه — بدون تحديث الصفحة.",
+    subscribers:"مشترك", views:"مشاهدات", videos:"فيديو", milestone:"الهدف القادم",
+    recentHead:"أحدث الفيديوهات", popularHead:"المفضلة لدى الجمهور",
+    footer:"صُنع بمدارات وقليل من غبار النجوم · getthemoon",
+    celebrateHint:"اضغط في أي مكان للإغلاق", darkSide:"لقد وصلت إلى الجانب المظلم من القمر.",
+    newStart:"يبدأ مدار جديد.",
+    loading:"جارٍ التحميل…", videosUnavailable:"الفيديوهات غير متاحة حاليًا",
+    journeyEyebrow:"رحلة المحطات", reached:"تحقق", next:"التالي",
+    modeJourney:"الرحلة", mode12:"12 شهر", mode6:"6 أشهر", modeAll:"الكل",
+    expand:"توسيع الخط الزمني", collapse:"طي الخط الزمني",
+    currentFmt:(subs,pct)=>`${subs.toLocaleString()} مشترك · ${pct}% من الطريق`,
+    captionFmt:(n,from,to)=>`${n} فيديو · ${from} → ${to} · اضغط على أي كويكب للمشاهدة`,
+    noUploads:"لا توجد فيديوهات في هذا النطاق بعد" }
+};
+
+let currentLang = 'en';
+let currentSubs = 0;
+
+function applyLang(lang, animate){
+  const s = STRINGS[lang];
+  document.getElementById('htmlRoot').setAttribute('dir', s.dir);
+  document.getElementById('htmlRoot').setAttribute('lang', lang);
+  document.getElementById('liveLabel').textContent = s.live;
+  document.getElementById('langToggle').textContent = s.langLabel;
+  document.getElementById('txtEyebrow').textContent = s.eyebrow;
+  document.getElementById('txtHeadline').innerHTML = s.headline;
+  document.getElementById('txtSubline').textContent = s.subline;
+  document.getElementById('txtSubscribers').textContent = s.subscribers;
+  document.getElementById('txtViews').textContent = s.views;
+  document.getElementById('txtVideos').textContent = s.videos;
+  document.getElementById('txtMilestone').textContent = s.milestone;
+  document.getElementById('txtRecentHead').textContent = s.recentHead;
+  document.getElementById('txtPopularHead').textContent = s.popularHead;
+  document.getElementById('txtFooter').textContent = s.footer;
+  document.getElementById('celebrateHint').textContent = s.celebrateHint;
+  document.getElementById('txtJourneyEyebrow').textContent = s.journeyEyebrow;
+  document.getElementById('txtReached').textContent = s.reached;
+  document.getElementById('txtNext').textContent = s.next;
+  document.getElementById('mjModeJourney').textContent = s.modeJourney;
+  document.getElementById('mjMode12').textContent = s.mode12;
+  document.getElementById('mjMode6').textContent = s.mode6;
+  document.getElementById('mjModeAll').textContent = s.modeAll;
+  document.getElementById('mjExpand').setAttribute('aria-label', MJ.expanded ? s.collapse : s.expand);
+  currentLang = lang;
+  renderMJProgress();
+  renderMJOrbit();
+  if (animate){
+    const wrap = document.querySelector('.wrap');
+    wrap.classList.add('glitching');
+    setTimeout(() => wrap.classList.remove('glitching'), 320);
+  }
+}
+document.getElementById('langToggle').addEventListener('click', () => {
+  applyLang(currentLang === 'en' ? 'ar' : 'en', true);
+});
+
+let lastSubs = null;
+let firstLoad = true;
+document.getElementById('countNum').innerHTML = '<span class="count-pulse"></span>';
+
+function effectiveGoal(){ return CONFIG.testGoal || CONFIG.goal; }
+
+function animateNumber(el, from, to, dur = 1200){
+  const start = performance.now();
+  function tick(now){
+    const p = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.floor(from + (to - from) * eased).toLocaleString();
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = to.toLocaleString();
+  }
+  requestAnimationFrame(tick);
+}
+
+function applyStats(data){
+  if (firstLoad){ firstLoad = false; }
+  const goal = effectiveGoal();
+  const fillPct = Math.min(data.subscribers / goal, 1);
+
+  document.querySelector('.moon').style.setProperty('--fill', fillPct.toFixed(4));
+
+  const countEl = document.getElementById('countNum');
+  const from = lastSubs === null ? 0 : lastSubs;
+  animateNumber(countEl, from, data.subscribers);
+
+  document.getElementById('statViews').textContent = Number(data.views).toLocaleString();
+  document.getElementById('statVideos').textContent = data.videos;
+  document.getElementById('statNext').textContent = goal.toLocaleString();
+  document.getElementById('updatedLine').textContent = 'updated ' + new Date(data.updatedAt).toLocaleTimeString();
+
+  currentSubs = data.subscribers;
+  renderMJProgress();
+
+  if (data.avatar){
+    const photo = document.getElementById('moonPhoto');
+    const avatarImg = document.getElementById('avatarImg');
+    if (photo.src !== data.avatar){
+      photo.src = data.avatar;
+      photo.onload = () => photo.classList.add('loaded');
+      avatarImg.src = data.avatar;
+      avatarImg.style.display = 'block';
+    }
+  }
+
+  if (lastSubs !== null && lastSubs < goal && data.subscribers >= goal){
+    triggerCelebration();
+  }
+  lastSubs = data.subscribers;
+}
+
+function spawnCelebrationParticles(){
+  const colors = ['#ff5ea8','#7c6fee','#4d7dff','#f5c453'];
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  const n = 18;
+  const particles = [];
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'cparticle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 100 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * 0.38;
+    const x = cx + Math.cos(angle) * dist;
+    const y = cy + Math.sin(angle) * dist;
+    const color = colors[i % colors.length];
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.background = color;
+    p.style.boxShadow = `0 0 10px 2px ${color}`;
+    document.body.appendChild(p);
+    particles.push(p);
+  }
+  requestAnimationFrame(() => {
+    particles.forEach((p, i) => setTimeout(() => p.classList.add('pop'), i * 28));
+  });
+  setTimeout(() => {
+    particles.forEach((p, i) => {
+      setTimeout(() => {
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.classList.remove('pop');
+        p.classList.add('suck');
+      }, i * 18);
+    });
+  }, 900);
+  setTimeout(() => particles.forEach(p => p.remove()), 2200);
+}
+
+function triggerCelebration(customMsg, customSub){
+  const el = document.getElementById('celebrate');
+  const textEl = document.getElementById('celebrateText');
+  textEl.classList.remove('show');
+  document.getElementById('celebrateHint').style.opacity = '0';
+  el.classList.add('show');
+  spawnCelebrationParticles();
+
+  setTimeout(() => {
+    document.getElementById('celebrateMsg').textContent =
+      customMsg || `${effectiveGoal().toLocaleString()}. We got the Moon.`;
+    document.getElementById('celebrateSub').textContent =
+      customSub !== undefined ? customSub : STRINGS[currentLang].newStart;
+    textEl.classList.add('show');
+    document.getElementById('celebrateHint').style.transition = 'opacity 1s ease';
+    document.getElementById('celebrateHint').style.opacity = '1';
+  }, 2100);
+}
+document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
+
+document.getElementById('moonStage').addEventListener('click', () => {
+  window.open('https://www.youtube.com/@GetTheMoon', '_blank');
+});
+
+let avatarClicks = 0;
+document.getElementById('avatarImg').addEventListener('click', (e) => {
+  e.stopPropagation();
+  avatarClicks++;
+  if (avatarClicks >= 5){ avatarClicks = 0; triggerCelebration(STRINGS[currentLang].darkSide, ''); }
+});
+
+async function fetchStats(){
+  try{
+    const res = await fetch('/api/stats');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    applyStats(data);
+  }catch(err){
+    console.error(err);
+  }
+}
+fetchStats();
+setInterval(fetchStats, CONFIG.pollMs);
+
+/* ============================================================
+   MILESTONE JOURNEY
+   Expects /api/videos to eventually return:
+     { recent: [...], popular: [...],
+       videos: [{ id, title, views, publishedAt }, ...],   // full recent upload history
+       milestoneReachedAt: "2026-03-11T00:00:00Z" | null }  // when the current bracket started
+   Until that ships, MJ_USE_MOCK renders illustrative sample data so the
+   component is fully visible and interactive on its own.
+   ============================================================ */
+const MJ = {
+  mode: 'journey',
+  expanded: false,
+  videos: [],           // {id, title, views, publishedAt}
+  milestoneReachedAt: null
+};
+
+function mjHash(str){
+  let h = 0;
+  for (let i = 0; i < str.length; i++){ h = (h << 5) - h + str.charCodeAt(i); h |= 0; }
+  return h;
+}
+
+function mjCategorize(views, allViews){
+  if (allViews.length < 2) return 'normal';
+  const sorted = [...allViews].sort((a,b)=>a-b);
+  const pct = (p) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
+  if (views >= pct(0.9) && allViews.length >= 4) return 'popular';
+  if (views >= pct(0.65) && allViews.length >= 2) return 'featured';
+  return 'normal';
+}
+
+function mjAsteroidSVG(kind, seed){
+  const h = mjHash(seed);
+  const jx = (h % 5) - 2;          // -2..2
+  const jy = ((h >> 3) % 5) - 2;
+  const ringRot = -20 + (h % 25);   // -20..4
+  const gid = 'astGrad' + Math.abs(h);
+  let ring = '';
+  let sparkle = '';
+  if (kind === 'featured' || kind === 'popular'){
+    ring = `<ellipse cx="12" cy="12" rx="13" ry="4" fill="none" stroke="rgba(245,196,83,0.4)" stroke-width="1" transform="rotate(${ringRot} 12 12)"/>`;
+  }
+  if (kind === 'popular'){
+    sparkle = `<path d="M18.5 2.5 L19.1 4.3 L20.9 4.9 L19.1 5.5 L18.5 7.3 L17.9 5.5 L16.1 4.9 L17.9 4.3 Z" fill="var(--gold)"/>`;
+  }
+  const rockFill = kind === 'normal' ? 'var(--silver)' : 'var(--gold)';
+  return `
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="${gid}" cx="35%" cy="32%" r="70%">
+          <stop offset="0%" stop-color="${rockFill}" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="${rockFill}" stop-opacity="0.35"/>
+        </radialGradient>
+      </defs>
+      ${ring}
+      <circle cx="12" cy="12" r="8.5" fill="url(#${gid})"/>
+      <ellipse cx="${9+jx}" cy="${9+jy}" rx="1.8" ry="1.3" fill="rgba(0,0,0,0.32)"/>
+      <ellipse cx="${15-jx}" cy="${14-jy}" rx="1.4" ry="1" fill="rgba(0,0,0,0.28)"/>
+      ${sparkle}
+    </svg>`;
+}
+
+function mjMockVideos(){
+  const now = Date.now();
+  const day = 86400000;
+  const titles = [
+    'The moon looked different tonight', 'Q&A: how we edit every video', 'Chasing a meteor shower',
+    'We tried filming in total darkness', '3am thoughts on the roof', 'Answering your comments',
+    'This one almost didn\u2019t make the cut', 'Behind the telescope', 'A quiet night, a loud sky',
+    'What 75,000 of you taught me', 'The equipment breakdown you asked for', 'Everything changed after this upload'
+  ];
+  return titles.map((t, i) => ({
+    id: 'mock' + i,
+    title: t,
+    views: Math.round(1200 + Math.pow(i % 5, 2.4) * 900 + (i === 9 ? 42000 : 0) + (i === 2 ? 15000 : 0)),
+    publishedAt: new Date(now - (titles.length - i) * 11 * day).toISOString()
+  }));
+}
+
+function mjFilterByMode(videos, mode){
+  const now = Date.now();
+  const day = 86400000;
+  if (mode === '12m') return videos.filter(v => now - new Date(v.publishedAt).getTime() <= 365 * day);
+  if (mode === '6m')  return videos.filter(v => now - new Date(v.publishedAt).getTime() <= 183 * day);
+  if (mode === 'all') return videos;
+  // journey: since the last milestone was reached, falling back to the most
+  // recent dozen uploads when the backend hasn't supplied milestoneReachedAt yet.
+  if (MJ.milestoneReachedAt){
+    const since = new Date(MJ.milestoneReachedAt).getTime();
+    return videos.filter(v => new Date(v.publishedAt).getTime() >= since);
+  }
+  return videos.slice(-12);
+}
+
+function renderMJProgress(){
+  const s = STRINGS[currentLang];
+  const ms = CONFIG.milestones;
+  let idx = ms.length - 1;
+  for (let i = 0; i < ms.length; i++){ if (currentSubs < ms[i]){ idx = i; break; } }
+  const end = ms[idx];
+  const start = idx === 0 ? 0 : ms[idx - 1];
+  const pct = Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
+
+  document.getElementById('mjStart').textContent = start.toLocaleString();
+  document.getElementById('mjEnd').textContent = end.toLocaleString();
+  document.getElementById('mjFill').style.width = (pct * 100).toFixed(1) + '%';
+  document.getElementById('mjCurrent').innerHTML =
+    `<strong>${currentSubs.toLocaleString()}</strong> · ${s.currentFmt(currentSubs, (pct*100).toFixed(0)).split('·')[1] || ''}`.replace('  ',' ');
+  document.getElementById('mjCurrent').textContent = s.currentFmt(currentSubs, (pct * 100).toFixed(0));
+}
+
+function renderMJOrbit(){
+  const s = STRINGS[currentLang];
+  const track = document.getElementById('mjOrbitTrack');
+  const caption = document.getElementById('mjCaption');
+  const list = mjFilterByMode(MJ.videos, MJ.mode)
+    .slice()
+    .sort((a, b) => new Date(a.publishedAt) - new Date(b.publishedAt));
+
+  track.innerHTML = '';
+
+  if (!list.length){
+    caption.textContent = s.noUploads;
+    track.style.minWidth = '100%';
+    return;
+  }
+
+  const spacingPx = MJ.expanded ? 78 : 40;
+  const minWidth = Math.max(list.length * spacingPx, 260);
+  track.style.minWidth = minWidth + 'px';
+
+  const first = new Date(list[0].publishedAt).getTime();
+  const last = new Date(list[list.length - 1].publishedAt).getTime();
+  const span = Math.max(1, last - first);
+  const allViews = list.map(v => v.views);
+
+  list.forEach(v => {
+    const pct = list.length === 1 ? 50 : ((new Date(v.publishedAt).getTime() - first) / span) * 100;
+    const kind = mjCategorize(v.views, allViews);
+    const btn = document.createElement('button');
+    btn.className = `mj-asteroid ${kind}`;
+    btn.style.left = pct + '%';
+    btn.type = 'button';
+    const dateStr = new Date(v.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    btn.setAttribute('aria-label', `${v.title} — ${Number(v.views).toLocaleString()} views, ${dateStr}. Opens on YouTube.`);
+    btn.innerHTML = `
+      ${mjAsteroidSVG(kind, v.id)}
+      <span class="mj-tip">
+        <img src="https://img.youtube.com/vi/${v.id.startsWith('mock') ? 'dQw4w9WgXcQ' : v.id}/mqdefault.jpg" alt="" loading="lazy">
+        <span class="mj-tip-info">
+          <span class="mj-tip-title">${v.title}</span>
+          <span class="mj-tip-meta">${Number(v.views).toLocaleString()} views · ${dateStr}</span>
+        </span>
+      </span>`;
+    btn.addEventListener('click', () => {
+      if (!v.id.startsWith('mock')) window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
+    });
+    track.appendChild(btn);
+  });
+
+  const fmt = d => new Date(d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  caption.textContent = s.captionFmt(list.length, fmt(list[0].publishedAt), fmt(list[list.length - 1].publishedAt));
+}
+
+document.querySelectorAll('.mj-mode').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mj-mode').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    MJ.mode = btn.dataset.mode;
+    renderMJOrbit();
+  });
+});
+
+document.getElementById('mjExpand').addEventListener('click', () => {
+  MJ.expanded = !MJ.expanded;
+  const btn = document.getElementById('mjExpand');
+  btn.setAttribute('aria-pressed', String(MJ.expanded));
+  btn.setAttribute('aria-label', MJ.expanded ? STRINGS[currentLang].collapse : STRINGS[currentLang].expand);
+  renderMJOrbit();
+});
+
+async function fetchVideos(){
+  try{
+    if (MJ_USE_MOCK){
+      MJ.videos = mjMockVideos();
+      MJ.milestoneReachedAt = null;
+      renderCarousel('carouselRecent', MJ.videos.slice(-6).reverse().map(v => ({ id: 'dQw4w9WgXcQ', title: v.title, views: v.views })));
+      renderCarousel('carouselPopular', [...MJ.videos].sort((a,b)=>b.views-a.views).slice(0,6).map(v => ({ id: 'dQw4w9WgXcQ', title: v.title, views: v.views })));
+      renderMJOrbit();
+      return;
+    }
+    const res = await fetch('/api/videos');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    renderCarousel('carouselRecent', data.recent);
+    renderCarousel('carouselPopular', data.popular);
+    MJ.videos = data.videos || [];
+    MJ.milestoneReachedAt = data.milestoneReachedAt || null;
+    renderMJOrbit();
+  }catch(err){
+    console.error(err);
+    renderCarousel('carouselRecent', []);
+    renderCarousel('carouselPopular', []);
+    MJ.videos = [];
+    renderMJOrbit();
+  }
+}
+
+function renderCarousel(containerId, videos){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  if (!videos || !videos.length){
+    el.innerHTML = `<div class="carousel-msg">${STRINGS[currentLang].videosUnavailable}</div>`;
+    return;
+  }
+  videos.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vcard';
+    card.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
+    card.innerHTML = `
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/${v.id}/mqdefault.jpg')"></div>
+      <div class="info">
+        <div class="title">${v.title}</div>
+        <div class="meta">${Number(v.views).toLocaleString()} views</div>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+applyLang('en', false);
+fetchVideos();
+setInterval(fetchVideos, 10 * 60 * 1000);
+
+const platformRow = document.getElementById('platformRow');
+CONFIG.platforms.forEach(p => {
+  const a = document.createElement('a');
+  a.className = 'pill'; a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
+  a.innerHTML = `<span class="dotc" style="background:${p.color}"></span><span>${p.label}</span>`;
+  platformRow.appendChild(a);
+});
+
+let remClicks = 0;
+document.getElementById('remToggle').addEventListener('click', () => {
+  remClicks++;
+  if (remClicks >= 3){ document.body.classList.toggle('rem-cursor'); remClicks = 0; }
+});
+
+setInterval(() => {
+  const brand = document.querySelector('.brand');
+  brand.classList.add('glitching');
+  setTimeout(() => brand.classList.remove('glitching'), 320);
+}, 4000 + Math.random() * 2000);
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const canvas = document.getElementById('sky');
+const ctx = canvas.getContext('2d');
+let w, h, stars, meteors;
+function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+function makeStars(n){
+  return Array.from({length:n}, () => ({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.3+0.2, a: Math.random()*0.6+0.2, tw: Math.random()*0.02+0.005 }));
+}
+function makeMeteor(){
+  return { x: Math.random()*w*1.4 - w*0.2, y: -20, len: Math.random()*80+60, speed: Math.random()*6+4, angle: Math.PI/4 + (Math.random()*0.15 - 0.075) };
+}
+stars = makeStars(110);
+meteors = [];
+if (!reduceMotion){ setInterval(() => { meteors.push(makeMeteor()); }, 25000 + Math.random()*8000); }
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  stars.forEach(s => {
+    s.a += reduceMotion ? 0 : (Math.sin(Date.now()*s.tw) * 0.002);
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(240,238,252,${Math.max(0.15, Math.min(0.9,s.a))})`; ctx.fill();
+  });
+  meteors.forEach(m => {
+    m.x += Math.cos(m.angle)*m.speed; m.y += Math.sin(m.angle)*m.speed;
+    const tailX = m.x - Math.cos(m.angle)*m.len; const tailY = m.y - Math.sin(m.angle)*m.len;
+    const grad = ctx.createLinearGradient(m.x,m.y,tailX,tailY);
+    grad.addColorStop(0, 'rgba(255,255,255,0.9)'); grad.addColorStop(1, 'rgba(124,111,238,0)');
+    ctx.strokeStyle = grad; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(tailX,tailY); ctx.stroke();
+  });
+  meteors = meteors.filter(m => m.y < h + 100 && m.x < w + 200);
+  requestAnimationFrame(draw);
+}
+draw();
+
+const dustCanvas = document.getElementById('dust');
+const dctx = dustCanvas.getContext('2d');
+let dw, dh, dust;
+function resizeDust(){ dw = dustCanvas.width = window.innerWidth; dh = dustCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeDust);
+resizeDust();
+function makeDust(n){
+  return Array.from({length:n}, () => ({ x: Math.random()*dw, y: Math.random()*dh, vx: (Math.random()-0.5)*0.05, vy: -(Math.random()*0.08+0.02), r: Math.random()*1.2+0.4, a: Math.random()*0.3+0.05 }));
+}
+dust = reduceMotion ? [] : makeDust(36);
+function drawDust(){
+  dctx.clearRect(0,0,dw,dh);
+  dust.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.y < -10){ p.y = dh + 10; p.x = Math.random()*dw; }
+    dctx.beginPath(); dctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    dctx.fillStyle = `rgba(245,196,83,${p.a})`; dctx.fill();
+  });
+  requestAnimationFrame(drawDust);
+}
+drawDust();
+</script>
+</body>
+</html>
