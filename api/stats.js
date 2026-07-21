@@ -19,8 +19,6 @@ export default async function handler(req, res) {
     const stats = json.items[0].statistics;
     const snippet = json.items[0].snippet;
 
-    // Cache this response at the edge for 60 seconds, so repeat visits
-    // don't spend extra YouTube API quota.
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
 
     res.status(200).json({

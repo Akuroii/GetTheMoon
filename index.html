@@ -18,6 +18,9 @@
 <meta name="twitter:image" content="https://getthemoon.vercel.app/api/og">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="icon" type="image/svg+xml" href="assets/meteor.svg">
+<link rel="alternate icon" href="assets/meteor-32.png">
+<link rel="apple-touch-icon" href="assets/meteor-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 
@@ -41,7 +44,7 @@
   html[dir="rtl"] h1{ font-family: 'Tajawal', sans-serif; font-style: normal; }
 
   body.rem-cursor, body.rem-cursor *{
-    /* cursor: url('rem-cursor.png') 8 8, auto !important; */
+    cursor: url('assets/meteor-cursor.png') 14 14, auto !important;
   }
 
   a{color:inherit; text-decoration:none;}
@@ -84,7 +87,8 @@
   @keyframes blink{ 50%{ opacity:0.3; } }
   .icon-btn{ width:26px; height:26px; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-dim); font-family:'Space Grotesk', sans-serif; }
   .icon-btn:hover{ border-color: var(--violet); color: var(--text); }
-  .rem-toggle{ width:10px; height:10px; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; }
+  .icon-btn:focus-visible, .rem-toggle:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .rem-toggle{ width:10px; height:10px; padding:0; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; }
   .rem-toggle:hover{ background: var(--pink); border-color: var(--pink); }
 
   .hero{ text-align:center; padding: 60px 0 20px; }
@@ -93,7 +97,8 @@
   h1 em{ color: var(--gold); font-style: normal; font-weight:600; }
   .sub-line{ color: var(--text-dim); font-size: 16px; margin-bottom: 50px; }
 
-  .moon-stage{ position: relative; width: 320px; height: 320px; margin: 0 auto 36px; cursor: pointer; }
+  .moon-stage{ position: relative; width: 320px; height: 320px; margin: 0 auto 36px; cursor: pointer; border-radius:50%; }
+  .moon-stage:focus-visible{ outline:2px solid var(--gold); outline-offset:8px; }
   .orbit-ring{ position:absolute; inset: -34px; border: 1px dashed var(--line); border-radius: 50%; animation: spin 22s linear infinite; }
   .orbit-ring .dot{ position:absolute; border-radius:50%; }
   .orbit-ring .dot.d-violet{ width:9px; height:9px; background: var(--violet); box-shadow: 0 0 10px 2px var(--violet); }
@@ -137,20 +142,51 @@
   .count-label{ font-family:'Space Grotesk', sans-serif; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin-top: 4px; }
   .updated-line{ font-family:'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); opacity:0.5; margin-top:10px; }
 
-  .milestone-wrap{ max-width:480px; margin:26px auto 0; display:flex; align-items:center; gap:10px; direction: ltr; }
+  /* ---- Orbital milestone track (wraps the moon; replaces the old linear bar) ---- */
+  .orbit-wrap{ position:relative; width:460px; height:460px; margin:0 auto 8px; }
+  .orbit-svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .orbit-track{ stroke: var(--line); stroke-width:2; stroke-linecap:round; }
+  .orbit-progress{
+    stroke: url(#orbitProgressGrad); stroke-width:3; stroke-linecap:round;
+    filter: drop-shadow(0 0 6px rgba(245,196,83,0.45));
+    transition: stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1);
+  }
+  .orbit-wrap .moon-stage{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); margin:0; }
+
+  .orbit-marker{
+    position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px;
+    background:transparent; border:none; padding:0; cursor:pointer;
+    transition: left 1.1s cubic-bezier(.2,.8,.2,1), top 1.1s cubic-bezier(.2,.8,.2,1), transform .2s ease;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .orbit-marker svg{ width:20px; height:20px; display:block; filter: drop-shadow(0 0 4px rgba(124,111,238,0.5)); opacity:0.65; transition: opacity .2s ease, filter .2s ease; }
+  .orbit-marker:hover svg, .orbit-marker:focus-visible svg{ opacity:1; filter: drop-shadow(0 0 8px rgba(245,196,83,0.75)); }
+  .orbit-marker.reached svg{ opacity:0.95; }
+  .orbit-marker.active svg{ opacity:1; filter: drop-shadow(0 0 10px rgba(245,196,83,0.9)); transform:scale(1.15); }
+  .orbit-marker:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; border-radius:50%; }
+
+  .orbit-marker.current{ width:34px; height:34px; margin:-17px 0 0 -17px; cursor:default; pointer-events:none; }
+  .orbit-marker.current svg{ width:30px; height:30px; opacity:1; filter: drop-shadow(0 0 12px var(--gold)) drop-shadow(0 0 22px rgba(245,196,83,0.5)); animation: currentPulse 2.4s ease-in-out infinite; }
+  @keyframes currentPulse{ 50%{ filter: drop-shadow(0 0 18px var(--gold)) drop-shadow(0 0 30px rgba(245,196,83,0.7)); } }
+
+  .orbit-tooltip{
+    position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+    background: var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding: 5px 9px; font-family:'Space Grotesk', sans-serif; font-size:11px; white-space:nowrap;
+    color: var(--text); opacity:0; pointer-events:none; transition:opacity .15s;
+  }
+  .orbit-marker:hover .orbit-tooltip, .orbit-marker:focus-visible .orbit-tooltip{ opacity:1; }
+
+  .orbit-endpoint{
+    position:absolute; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim);
+    transform:translate(-50%,-50%); direction:ltr; pointer-events:none;
+  }
+
+  .orbit-readout{ max-width:340px; margin:16px auto 0; display:flex; align-items:center; justify-content:center; gap:16px; direction: ltr; }
   .mbtn{ flex:0 0 auto; background:transparent; border:1px solid var(--line); color:var(--text-dim); width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:13px; }
   .mbtn:hover{ border-color:var(--violet); color:var(--text); }
-  .mb-body{ flex:1; min-width:0; }
-  .mb-labels{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim); margin-bottom:6px; }
-  .mb-track{ position:relative; height:6px; border-radius:999px; background:var(--surface); border:1px solid var(--line); }
-  .mb-fill{ position:absolute; top:0; left:0; bottom:0; width:0%; border-radius:999px; background:linear-gradient(90deg, var(--violet), var(--gold)); box-shadow:0 0 12px -2px var(--gold); transition:width 1s cubic-bezier(.2,.8,.2,1); }
-  .mb-marker{
-    position:absolute; top:50%; left:0%; width:18px; height:18px;
-    transform:translate(-50%,-50%); transition:left 1s cubic-bezier(.2,.8,.2,1);
-    filter: drop-shadow(0 0 6px var(--gold));
-  }
-  .mb-marker svg{ width:100%; height:100%; display:block; }
-  .mb-pct{ text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--gold); margin-top:10px; }
+  .mbtn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .orbit-readout-text{ font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--gold); letter-spacing:0.03em; min-width:180px; text-align:center; }
 
   .stats{ display:flex; justify-content:center; gap: 48px; margin-top: 44px; flex-wrap: wrap; }
   .stat{ text-align:center; }
@@ -160,6 +196,7 @@
   .platforms{ display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top: 60px; }
   .pill{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); display:flex; align-items:center; gap:8px; transition: box-shadow .2s, transform .2s; }
   .pill:hover{ box-shadow: 0 0 18px -4px var(--violet); transform: translateY(-2px); }
+  .pill:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
   .pill .dotc{ width:6px; height:6px; border-radius:50%; }
 
   .section-head{ font-family:'Space Grotesk', sans-serif; font-size: 12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin: 90px 0 18px; display:flex; align-items:center; gap:12px; }
@@ -169,8 +206,10 @@
   .carousel::-webkit-scrollbar{ height:6px; }
   .carousel::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
   .carousel-msg{ font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--text-dim); padding: 20px 4px; }
-  .vcard{ scroll-snap-align:start; flex: 0 0 240px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow:hidden; cursor:pointer; transition: transform .2s, box-shadow .2s; }
+  .vcard{ scroll-snap-align:start; flex: 0 0 240px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow:hidden; cursor:pointer; transition: transform .2s, box-shadow .2s; padding:0; text-align:left; color:inherit; font:inherit; }
   .vcard:hover{ transform: translateY(-4px); box-shadow: 0 0 24px -6px var(--violet), 0 0 40px -10px var(--gold); }
+  .vcard:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  html[dir="rtl"] .vcard{ text-align:right; }
   .vcard .thumb{ aspect-ratio: 16/9; background: var(--surface-2) center/cover; }
   .vcard .info{ padding: 12px 14px; }
   .vcard .title{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -189,8 +228,10 @@
     box-shadow: 0 0 9px 2px var(--violet);
     transform: translateX(-50%);
     cursor:pointer; transition: transform .2s, box-shadow .2s;
+    border:none; padding:0;
   }
   .timeline-dot:hover{ transform: translateX(-50%) scale(1.7); box-shadow: 0 0 16px 4px var(--pink); }
+  .timeline-dot:focus-visible{ transform: translateX(-50%) scale(1.7); box-shadow: 0 0 16px 4px var(--pink); outline:2px solid var(--gold); outline-offset:3px; }
   .timeline-tooltip{
     position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
     background: var(--surface); border:1px solid var(--line); border-radius:8px;
@@ -198,7 +239,7 @@
     width:170px; text-align:center; line-height:1.35;
     opacity:0; pointer-events:none; transition:opacity .15s;
   }
-  .timeline-dot:hover .timeline-tooltip{ opacity:1; }
+  .timeline-dot:hover .timeline-tooltip, .timeline-dot:focus-visible .timeline-tooltip{ opacity:1; }
   .timeline-caption{
     text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--text-dim);
   }
@@ -251,16 +292,51 @@
     .moon-fill, .moon-glow{ transition: none; }
     #nebula::before, #nebula::after{ animation: none; }
     .glitching{ animation:none; }
+    .orbit-marker.current svg{ animation: none; }
+    .orbit-progress{ transition: none; }
+    .orbit-marker{ transition: none; }
   }
   @media (max-width: 560px){
     .moon-stage{ width: 240px; height:240px; }
+    .orbit-wrap{ width: 320px; height: 320px; }
+    .orbit-endpoint{ font-size:10px; }
     .stats{ gap: 28px; }
     #nebula::before{ width:520px; height:520px; }
     #nebula::after{ width:420px; height:420px; }
   }
+  @media (min-width:561px) and (max-width: 860px){
+    .orbit-wrap{ width: 400px; height: 400px; }
+  }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="meteorIcon" viewBox="0 0 64 64">
+      <radialGradient id="meteorBodyGrad" cx="38%" cy="34%" r="72%">
+        <stop offset="0%" stop-color="#e7ddff"/>
+        <stop offset="38%" stop-color="#9b7dff"/>
+        <stop offset="72%" stop-color="#6b4fff"/>
+        <stop offset="100%" stop-color="#2f1f7a"/>
+      </radialGradient>
+      <radialGradient id="meteorCraterGrad" cx="50%" cy="45%" r="55%">
+        <stop offset="0%" stop-color="#1c1140" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#1c1140" stop-opacity="0"/>
+      </radialGradient>
+      <path fill="url(#meteorBodyGrad)" d="M32.4 3.6c6.2-.4 9.1 4 13.7 6.4 5 2.6 11.8 3 14.2 8.9 2.3 5.7-1.9 11.1-3.4 16.8-1.4 5.2.9 11.7-3.1 15.9-4.1 4.3-11 2.3-16.6 3.6-5.4 1.3-10.1 5.6-15.8 4.2-5.8-1.4-7.2-8-11.2-11.9C6.3 43.9-.6 41 3 34.8c2.4-4.1 8.2-4.6 11.3-8.2 3-3.5 3.2-9 7.2-12.1 3.4-2.7 7.1-10.5 10.9-10.9Z"/>
+      <circle cx="24" cy="22" r="7.5" fill="url(#meteorCraterGrad)"/>
+      <circle cx="41" cy="27" r="5" fill="url(#meteorCraterGrad)"/>
+      <circle cx="30" cy="41" r="6" fill="url(#meteorCraterGrad)"/>
+      <circle cx="45" cy="42" r="3" fill="url(#meteorCraterGrad)"/>
+      <circle cx="16" cy="36" r="2.6" fill="url(#meteorCraterGrad)"/>
+      <g fill="#fff">
+        <path d="M40 20 l1.6 4.2 4.2 1.6 -4.2 1.6 -1.6 4.2 -1.6-4.2 -4.2-1.6 4.2-1.6Z" opacity="0.95"/>
+        <circle cx="20" cy="30" r="1" opacity="0.75"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
 
 <div id="nebula" aria-hidden="true"></div>
 <canvas id="sky"></canvas>
@@ -278,7 +354,7 @@
     <div class="top-right">
       <div class="live-dot" id="liveLabel">live</div>
       <button class="icon-btn" id="langToggle" title="Language">EN</button>
-      <div class="rem-toggle" id="remToggle" title="???"></div>
+      <button class="rem-toggle" id="remToggle" aria-label="Toggle alternate cursor" title="???"></button>
     </div>
   </header>
 
@@ -287,64 +363,72 @@
     <h1 id="txtHeadline">Every orbit brings us <em>closer</em><br>to the Moon.</h1>
     <div class="sub-line" id="txtSubline">Updating on its own — no refresh needed.</div>
 
-    <div class="moon-stage" id="moonStage">
-      <div class="orbit-ring">
-        <div class="dot d-violet" style="top:50%; left:-3px;"></div>
-        <div class="dot d-gold" style="top:-3px; left:50%;"></div>
-        <div class="dot d-pink" style="bottom:-3px; left:50%;"></div>
+    <div class="orbit-wrap" id="orbitWrap">
+      <svg class="orbit-svg" id="orbitSvg" viewBox="0 0 460 460" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="orbitProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="var(--violet)"/>
+            <stop offset="100%" stop-color="var(--gold)"/>
+          </linearGradient>
+        </defs>
+        <path class="orbit-track" id="orbitTrack" fill="none"></path>
+        <path class="orbit-progress" id="orbitProgress" fill="none"></path>
+      </svg>
+
+      <div class="moon-stage" id="moonStage" role="link" tabindex="0" aria-label="Open GetTheMoon on YouTube">
+        <div class="orbit-ring">
+          <div class="dot d-violet" style="top:50%; left:-3px;"></div>
+          <div class="dot d-gold" style="top:-3px; left:50%;"></div>
+          <div class="dot d-pink" style="bottom:-3px; left:50%;"></div>
+        </div>
+        <div class="moon-glow"></div>
+        <div class="moon">
+          <svg class="moon-surface" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <radialGradient id="moonBase" cx="35%" cy="32%" r="75%">
+                <stop offset="0%" stop-color="#d9d7ec"/>
+                <stop offset="45%" stop-color="#9995b8"/>
+                <stop offset="100%" stop-color="#312f47"/>
+              </radialGradient>
+              <radialGradient id="craterShadow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#000" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="craterRim" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stop-color="#fff" stop-opacity="0"/>
+                <stop offset="85%" stop-color="#fff" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="100" fill="url(#moonBase)"/>
+            <circle cx="68" cy="58" r="22" fill="url(#craterShadow)"/>
+            <circle cx="68" cy="58" r="24" fill="url(#craterRim)"/>
+            <circle cx="130" cy="90" r="14" fill="url(#craterShadow)"/>
+            <circle cx="130" cy="90" r="16" fill="url(#craterRim)"/>
+            <circle cx="95" cy="142" r="18" fill="url(#craterShadow)"/>
+            <circle cx="95" cy="142" r="20" fill="url(#craterRim)"/>
+            <circle cx="147" cy="145" r="9" fill="url(#craterShadow)"/>
+            <circle cx="44" cy="120" r="8" fill="url(#craterShadow)"/>
+            <circle cx="152" cy="45" r="6" fill="url(#craterShadow)"/>
+          </svg>
+          <div class="moon-fill"></div>
+        </div>
       </div>
-      <div class="moon-glow"></div>
-      <div class="moon">
-        <svg class="moon-surface" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <radialGradient id="moonBase" cx="35%" cy="32%" r="75%">
-              <stop offset="0%" stop-color="#d9d7ec"/>
-              <stop offset="45%" stop-color="#9995b8"/>
-              <stop offset="100%" stop-color="#312f47"/>
-            </radialGradient>
-            <radialGradient id="craterShadow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#000" stop-opacity="0.35"/>
-              <stop offset="100%" stop-color="#000" stop-opacity="0"/>
-            </radialGradient>
-            <radialGradient id="craterRim" cx="50%" cy="50%" r="50%">
-              <stop offset="60%" stop-color="#fff" stop-opacity="0"/>
-              <stop offset="85%" stop-color="#fff" stop-opacity="0.12"/>
-              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <circle cx="100" cy="100" r="100" fill="url(#moonBase)"/>
-          <circle cx="68" cy="58" r="22" fill="url(#craterShadow)"/>
-          <circle cx="68" cy="58" r="24" fill="url(#craterRim)"/>
-          <circle cx="130" cy="90" r="14" fill="url(#craterShadow)"/>
-          <circle cx="130" cy="90" r="16" fill="url(#craterRim)"/>
-          <circle cx="95" cy="142" r="18" fill="url(#craterShadow)"/>
-          <circle cx="95" cy="142" r="20" fill="url(#craterRim)"/>
-          <circle cx="147" cy="145" r="9" fill="url(#craterShadow)"/>
-          <circle cx="44" cy="120" r="8" fill="url(#craterShadow)"/>
-          <circle cx="152" cy="45" r="6" fill="url(#craterShadow)"/>
-        </svg>
-        <div class="moon-fill"></div>
-      </div>
+
+      <div class="orbit-endpoint start" id="orbitEndStart" aria-hidden="true">0</div>
+      <div class="orbit-endpoint end" id="orbitEndEnd" aria-hidden="true">100,000</div>
+      <div class="orbit-markers" id="orbitMarkers" role="group" aria-label="Subscriber milestones"></div>
     </div>
 
     <div class="count-wrap">
       <div class="count" id="countNum">🌑</div>
       <div class="count-label" id="txtSubscribers">Subscribers</div>
 
-      <div class="milestone-wrap">
-        <button class="mbtn" id="mbPrev">‹</button>
-        <div class="mb-body">
-          <div class="mb-labels"><span id="mbStart">0</span><span id="mbEnd">1,000</span></div>
-          <div class="mb-track">
-            <div class="mb-fill" id="mbFill"></div>
-            <div class="mb-marker" id="mbMarker">
-              <svg viewBox="0 0 32 32"><path d="M20 4a13 13 0 1 0 0 24 10.5 10.5 0 1 1 0-24z" fill="var(--gold)"/></svg>
-            </div>
-          </div>
-        </div>
-        <button class="mbtn" id="mbNext">›</button>
+      <div class="orbit-readout">
+        <button class="mbtn" id="mbPrev" aria-label="Focus previous milestone">‹</button>
+        <div class="orbit-readout-text" id="orbitReadoutText" aria-live="polite">0 → 1,000 · 0%</div>
+        <button class="mbtn" id="mbNext" aria-label="Focus next milestone">›</button>
       </div>
-      <div class="mb-pct" id="mbPct">0%</div>
 
       <div class="updated-line" id="updatedLine"></div>
     </div>
@@ -399,7 +483,14 @@ const CONFIG = {
     'assets/celebration/07.png', 'assets/celebration/08.png', 'assets/celebration/09.png',
     'assets/celebration/10.png', 'assets/celebration/11.png', 'assets/celebration/12.png'
   ],
-  celebrationAudio: { src: 'assets/celebration/celebration.mp3', volume: 0.6 }, — add when ready
+  // Procedurally generated 12s ambient pad (synth drone + pentatonic bells,
+  // see /gen_audio.py in the deliverable). Deliberately NOT embedded as a
+  // base64 data URI in this config: that would ship ~100KB of audio to
+  // every single visitor on every page load, even though the vast majority
+  // will never trigger a celebration. Referencing it by URL means it's only
+  // fetched the moment triggerCelebration() actually runs — same
+  // lazy-loading principle already used for celebrationImages below.
+  celebrationAudio: { src: 'assets/celebration/ambient.mp3', volume: 0.5 },
   platforms: [
     { label: "Main Channel", color: "#ff5ea8", url: "https://www.youtube.com/@GetTheMoon" },
     { label: "EN Channel",   color: "#7c6fee", url: "https://www.youtube.com/@GetTheMoonus" },
@@ -418,6 +509,7 @@ const STRINGS = {
     footer:"made with orbits and a little stardust · getthemoon",
     celebrateHint:"click anywhere to close", darkSide:"You found the dark side of the Moon.",
     newStart:"A new orbit begins.",
+    orbitReached:"reached", orbitUpcoming:"upcoming",
     loading:"loading…", videosUnavailable:"videos unavailable right now" },
   ar: { dir:"rtl", langLabel:"AR", live:"مباشر", eyebrow:"مراقبة المشتركين",
     headline:'كل مدار يقربنا <em>أكثر</em><br>من القمر.',
@@ -427,6 +519,7 @@ const STRINGS = {
     footer:"صُنع بمدارات وقليل من غبار النجوم · getthemoon",
     celebrateHint:"اضغط في أي مكان للإغلاق", darkSide:"لقد وصلت إلى الجانب المظلم من القمر.",
     newStart:"يبدأ مدار جديد.",
+    orbitReached:"تم الوصول", orbitUpcoming:"قادم",
     loading:"جارٍ التحميل…", videosUnavailable:"الفيديوهات غير متاحة حاليًا" }
 };
 
@@ -454,6 +547,7 @@ function applyLang(lang, animate){
   document.getElementById('celebrateHint').textContent = s.celebrateHint;
   currentLang = lang;
   renderMilestone();
+  if (typeof layoutOrbit === 'function' && orbitMarkerEls.length) layoutOrbit();
   if (animate){
     const wrap = document.querySelector('.wrap');
     wrap.classList.add('glitching');
@@ -465,24 +559,131 @@ document.getElementById('langToggle').addEventListener('click', () => {
   applyLang(currentLang === 'en' ? 'ar' : 'en', true);
 });
 
+// ---- Orbital milestone track ----
+// Geometry: a 270° arc (gap centered at the bottom, toward the subscriber
+// count) so the "start" and "end" of the journey read left-to-right like a
+// gauge, and the open mouth visually points at the number it's describing.
+const ORBIT_ARC_START = -135; // degrees from top, clockwise
+const ORBIT_ARC_END = 135;
+const ORBIT_ARC_SPAN = ORBIT_ARC_END - ORBIT_ARC_START;
+
+function angleForValue(v, goal){
+  const frac = Math.max(0, Math.min(1, v / goal));
+  return ORBIT_ARC_START + frac * ORBIT_ARC_SPAN;
+}
+function pointOnRing(cx, cy, r, angleDeg){
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function buildArcPath(cx, cy, r, a0, a1){
+  const p0 = pointOnRing(cx, cy, r, a0);
+  const p1 = pointOnRing(cx, cy, r, a1);
+  const largeArc = (a1 - a0) > 180 ? 1 : 0;
+  return `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`;
+}
+
+let orbitMarkerEls = [];
+let orbitCurrentEl = null;
+let orbitTrackLength = 0;
+
+function buildOrbitMarkers(){
+  const wrap = document.getElementById('orbitMarkers');
+  wrap.innerHTML = '';
+  orbitMarkerEls = CONFIG.milestones.map((value, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'orbit-marker';
+    btn.type = 'button';
+    btn.dataset.index = i;
+    btn.dataset.value = value;
+    btn.innerHTML = `<svg><use href="#meteorIcon"></use></svg><span class="orbit-tooltip"></span>`;
+    btn.addEventListener('click', () => { milestoneIdx = i; renderMilestone(); btn.focus(); });
+    btn.addEventListener('focus', () => { milestoneIdx = i; renderMilestone(); });
+    wrap.appendChild(btn);
+    return btn;
+  });
+
+  const cur = document.createElement('div');
+  cur.className = 'orbit-marker current';
+  cur.setAttribute('aria-hidden', 'true');
+  cur.innerHTML = `<svg><use href="#meteorIcon"></use></svg>`;
+  wrap.appendChild(cur);
+  orbitCurrentEl = cur;
+}
+
+function layoutOrbit(){
+  const wrapEl = document.getElementById('orbitWrap');
+  const svg = document.getElementById('orbitSvg');
+  const size = wrapEl.clientWidth || 460;
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  const cx = size / 2, cy = size / 2;
+  const r = size / 2 - 24;
+  const goal = effectiveGoal();
+
+  const trackPath = document.getElementById('orbitTrack');
+  const progressPath = document.getElementById('orbitProgress');
+  const d = buildArcPath(cx, cy, r, ORBIT_ARC_START, ORBIT_ARC_END);
+  trackPath.setAttribute('d', d);
+  progressPath.setAttribute('d', d);
+  orbitTrackLength = trackPath.getTotalLength();
+  progressPath.style.strokeDasharray = orbitTrackLength;
+  const frac = Math.max(0, Math.min(1, currentSubs / goal));
+  progressPath.style.strokeDashoffset = orbitTrackLength * (1 - frac);
+
+  orbitMarkerEls.forEach((btn, i) => {
+    const value = CONFIG.milestones[i];
+    const angle = angleForValue(value, goal);
+    const p = pointOnRing(cx, cy, r, angle);
+    btn.style.left = p.x + 'px';
+    btn.style.top = p.y + 'px';
+    btn.classList.toggle('reached', currentSubs >= value);
+    btn.classList.toggle('active', i === milestoneIdx);
+    const s = STRINGS[currentLang];
+    const state = currentSubs >= value ? s.orbitReached : s.orbitUpcoming;
+    const label = `${value.toLocaleString()} ${s.subscribers.toLowerCase()} — ${state}`;
+    btn.setAttribute('aria-label', label);
+    btn.querySelector('.orbit-tooltip').textContent = label;
+  });
+
+  const curAngle = angleForValue(currentSubs, goal);
+  const pc = pointOnRing(cx, cy, r, curAngle);
+  orbitCurrentEl.style.left = pc.x + 'px';
+  orbitCurrentEl.style.top = pc.y + 'px';
+
+  const startPt = pointOnRing(cx, cy, r, ORBIT_ARC_START);
+  const endPt = pointOnRing(cx, cy, r, ORBIT_ARC_END);
+  document.getElementById('orbitEndStart').style.left = startPt.x + 'px';
+  document.getElementById('orbitEndStart').style.top = (startPt.y + 14) + 'px';
+  document.getElementById('orbitEndEnd').style.left = endPt.x + 'px';
+  document.getElementById('orbitEndEnd').style.top = (endPt.y + 14) + 'px';
+  document.getElementById('orbitEndEnd').textContent = goal.toLocaleString();
+}
+
 function renderMilestone(){
   const ms = CONFIG.milestones;
   const end = ms[milestoneIdx];
   const start = milestoneIdx === 0 ? 0 : ms[milestoneIdx - 1];
-  const pct = Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
-  document.getElementById('mbStart').textContent = start.toLocaleString();
-  document.getElementById('mbEnd').textContent = end.toLocaleString();
-  document.getElementById('mbFill').style.width = (pct * 100).toFixed(1) + '%';
-  document.getElementById('mbMarker').style.left = (pct * 100).toFixed(1) + '%';
-  document.getElementById('mbPct').textContent = (pct * 100).toFixed(1) + '%';
+  const pct = start === end ? 1 : Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
+  document.getElementById('orbitReadoutText').textContent =
+    `${start.toLocaleString()} → ${end.toLocaleString()} · ${(pct * 100).toFixed(1)}%`;
+  orbitMarkerEls.forEach((btn, i) => btn.classList.toggle('active', i === milestoneIdx));
 }
 document.getElementById('mbPrev').addEventListener('click', () => {
   milestoneIdx = Math.max(0, milestoneIdx - 1);
   renderMilestone();
+  orbitMarkerEls[milestoneIdx].focus();
 });
 document.getElementById('mbNext').addEventListener('click', () => {
   milestoneIdx = Math.min(CONFIG.milestones.length - 1, milestoneIdx + 1);
   renderMilestone();
+  orbitMarkerEls[milestoneIdx].focus();
+});
+
+buildOrbitMarkers();
+layoutOrbit();
+let orbitResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(orbitResizeTimer);
+  orbitResizeTimer = setTimeout(layoutOrbit, 120);
 });
 
 let lastSubs = null;
@@ -527,6 +728,7 @@ function applyStats(data){
     }
   }
   renderMilestone();
+  if (orbitMarkerEls.length) layoutOrbit();
 
   if (data.avatar){
     const avatarImg = document.getElementById('avatarImg');
@@ -665,10 +867,18 @@ function triggerCelebration(milestone, message, images, audio){
   tl.call(() => { spawnCelebrationParticles(); }, null, images.length ? '>' : 0);
   tl.call(revealText, null, '+=2.0');
 }
-document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
 
-document.getElementById('moonStage').addEventListener('click', () => {
-  window.open('https://www.youtube.com/@GetTheMoon', '_blank');
+function openMainChannel(){
+  window.open('https://www.youtube.com/@GetTheMoon', '_blank', 'noopener');
+}
+document.getElementById('moonStage').addEventListener('click', openMainChannel);
+document.getElementById('moonStage').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMainChannel(); }
+});
+
+document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape'){ document.getElementById('celebrate').classList.remove('show'); }
 });
 
 let avatarClicks = 0;
@@ -691,6 +901,12 @@ async function fetchStats(){
 fetchStats();
 setInterval(fetchStats, CONFIG.pollMs);
 
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = String(str == null ? '' : str);
+  return div.innerHTML;
+}
+
 function renderCarousel(containerId, videos){
   const el = document.getElementById(containerId);
   el.innerHTML = '';
@@ -699,13 +915,15 @@ function renderCarousel(containerId, videos){
     return;
   }
   videos.forEach(v => {
-    const card = document.createElement('div');
+    const card = document.createElement('button');
+    card.type = 'button';
     card.className = 'vcard';
-    card.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
+    card.setAttribute('aria-label', `${v.title} — ${Number(v.views).toLocaleString()} views. Opens on YouTube.`);
+    card.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank', 'noopener');
     card.innerHTML = `
-      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/${v.id}/mqdefault.jpg')"></div>
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/${encodeURIComponent(v.id)}/mqdefault.jpg')" role="img" aria-hidden="true"></div>
       <div class="info">
-        <div class="title">${v.title}</div>
+        <div class="title">${escapeHtml(v.title)}</div>
         <div class="meta">${Number(v.views).toLocaleString()} views</div>
       </div>`;
     el.appendChild(card);
@@ -725,15 +943,17 @@ function renderTimeline(videos){
   const span = Math.max(1, last - first);
   videos.forEach(v => {
     const pct = ((new Date(v.publishedAt).getTime() - first) / span) * 100;
-    const dot = document.createElement('div');
+    const dot = document.createElement('button');
+    dot.type = 'button';
     dot.className = 'timeline-dot';
     dot.style.left = pct + '%';
-    dot.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
-    dot.innerHTML = `<div class="timeline-tooltip">${v.title}</div>`;
+    dot.setAttribute('aria-label', `${v.title}. Opens on YouTube.`);
+    dot.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank', 'noopener');
+    dot.innerHTML = `<div class="timeline-tooltip">${escapeHtml(v.title)}</div>`;
     track.appendChild(dot);
   });
   const fmt = d => new Date(d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-  caption.textContent = `${videos.length} long videos · ${fmt(videos[0].publishedAt)} to ${fmt(videos[videos.length - 1].publishedAt)} · hover to explore`;
+  caption.textContent = `${videos.length} long videos · ${fmt(videos[0].publishedAt)} to ${fmt(videos[videos.length - 1].publishedAt)} · hover or tab through to explore`;
 }
 
 async function fetchVideos(){
