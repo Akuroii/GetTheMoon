@@ -6,6 +6,7 @@
 <title>Get The Moon · 100K</title>
 <meta name="description" content="Get The Moon — chasing 100,000 subscribers, one orbit at a time.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 
@@ -202,7 +203,13 @@
   }
   .cparticle.pop{ opacity:1; transform:scale(1.4); }
   .cparticle.suck{ transform:scale(0); opacity:0; }
+  .memory-montage{ position:absolute; inset:0; overflow:hidden; z-index:1; opacity:0; }
+  .memory-montage img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    opacity:0; filter: saturate(0.85) brightness(0.72) contrast(1.05); will-change: transform, opacity;
+  }
   .horizon{
+    z-index: 2;
     width: 220px; height:220px; border-radius:50%;
     background: conic-gradient(from 0deg, var(--pink), var(--violet), #4d7dff, var(--pink));
     -webkit-mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
@@ -213,7 +220,7 @@
   }
   @keyframes ringSpin{ to{ transform:rotate(360deg); } }
   @keyframes ringPulse{ 50%{ filter:blur(3px) brightness(1.25); } }
-  .celebrate-text{ position:relative; z-index:2; text-align:center; opacity:0; transition:opacity 1s ease; }
+  .celebrate-text{ position:relative; z-index:3; text-align:center; opacity:0; transition:opacity 1s ease; }
   .celebrate-text.show{ opacity:1; }
   #celebrate .msg{ text-align:center; font-family:'Spectral', serif; font-style:italic; font-size: clamp(22px,4vw,34px); color: var(--gold); padding: 0 20px; }
   #celebrate .sub{ margin-top:10px; font-family:'Space Grotesk', sans-serif; font-size:13px; color: var(--text-dim); }
@@ -356,6 +363,7 @@
 </div>
 
 <div id="celebrate">
+  <div class="memory-montage" id="memoryMontage" aria-hidden="true"></div>
   <div class="horizon"></div>
   <div class="celebrate-text" id="celebrateText">
     <div class="msg" id="celebrateMsg">We got the Moon.</div>
@@ -364,12 +372,23 @@
   <div class="hint" id="celebrateHint">click anywhere to close</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script>
 const CONFIG = {
   goal: 100000,
   testGoal: null,
   pollMs: 30000,
   milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000],
+  // Montage shown during milestone celebrations. All 12 provided pieces, unfiltered
+  // per explicit direction — note images 09/12 are captioned for a past "10K" milestone
+  // specifically, so they'll surface even when celebrating other milestones.
+  celebrationImages: [
+    'assets/celebration/01.png', 'assets/celebration/02.png', 'assets/celebration/03.png',
+    'assets/celebration/04.png', 'assets/celebration/05.png', 'assets/celebration/06.png',
+    'assets/celebration/07.png', 'assets/celebration/08.png', 'assets/celebration/09.png',
+    'assets/celebration/10.png', 'assets/celebration/11.png', 'assets/celebration/12.png'
+  ],
+  celebrationAudio: null, // e.g. { src: 'assets/celebration/fanfare.mp3', volume: 0.6 } — add when ready
   platforms: [
     { label: "Main Channel", color: "#ff5ea8", url: "https://www.youtube.com/@GetTheMoon" },
     { label: "EN Channel",   color: "#7c6fee", url: "https://www.youtube.com/@GetTheMoonus" },
@@ -507,7 +526,7 @@ function applyStats(data){
   }
 
   if (lastSubs !== null && lastSubs < goal && data.subscribers >= goal){
-    triggerCelebration();
+    triggerCelebration(goal, undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
   }
   lastSubs = data.subscribers;
 }
@@ -548,23 +567,92 @@ function spawnCelebrationParticles(){
   setTimeout(() => particles.forEach(p => p.remove()), 2200);
 }
 
-function triggerCelebration(customMsg, customSub){
+function preloadCelebrationAssets(){
+  // Lazy, non-blocking preload — deliberately NOT <link rel="preload"> in <head>,
+  // since that would force high-priority fetch of 12 images on every single
+  // page load even though most visitors will never trigger a celebration.
+  // This warms the browser cache in the background instead.
+  (CONFIG.celebrationImages || []).forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+preloadCelebrationAssets();
+
+function triggerCelebration(milestone, message, images, audio){
+  images = images || [];
   const el = document.getElementById('celebrate');
   const textEl = document.getElementById('celebrateText');
-  textEl.classList.remove('show');
-  document.getElementById('celebrateHint').style.opacity = '0';
-  el.classList.add('show');
-  spawnCelebrationParticles();
+  const montageEl = document.getElementById('memoryMontage');
+  const hintEl = document.getElementById('celebrateHint');
+  const msgEl = document.getElementById('celebrateMsg');
+  const subEl = document.getElementById('celebrateSub');
 
-  setTimeout(() => {
-    document.getElementById('celebrateMsg').textContent =
-      customMsg || `${effectiveGoal().toLocaleString()}. We got the Moon.`;
-    document.getElementById('celebrateSub').textContent =
-      customSub !== undefined ? customSub : STRINGS[currentLang].newStart;
+  textEl.classList.remove('show');
+  hintEl.style.transition = 'none';
+  hintEl.style.opacity = '0';
+  montageEl.innerHTML = '';
+  montageEl.style.opacity = '0';
+  el.classList.add('show');
+
+  const finalMsg = message || `${Number(milestone || effectiveGoal()).toLocaleString()}. We got the Moon.`;
+  // "A new orbit begins" is milestone-specific copy — skip it for non-milestone triggers (e.g. easter eggs).
+  const finalSub = milestone ? STRINGS[currentLang].newStart : '';
+
+  function revealText(){
+    msgEl.textContent = finalMsg;
+    subEl.textContent = finalSub;
     textEl.classList.add('show');
-    document.getElementById('celebrateHint').style.transition = 'opacity 1s ease';
-    document.getElementById('celebrateHint').style.opacity = '1';
-  }, 2100);
+    hintEl.style.transition = 'opacity 1s ease';
+    hintEl.style.opacity = '1';
+  }
+
+  if (reduceMotion){
+    // Reduced motion: no montage, no timed choreography — a calm, immediate reveal.
+    spawnCelebrationParticles();
+    revealText();
+    return;
+  }
+
+  if (typeof gsap === 'undefined'){
+    // GSAP CDN unreachable/blocked — degrade to the original fixed-delay reveal
+    // rather than breaking the celebration entirely.
+    spawnCelebrationParticles();
+    setTimeout(revealText, 2100);
+    return;
+  }
+
+  if (audio && audio.src){
+    try{
+      const a = new Audio(audio.src);
+      a.volume = audio.volume != null ? audio.volume : 0.6;
+      a.play().catch(() => {}); // autoplay may be blocked without a prior user gesture — fail silently
+    }catch(e){}
+  }
+
+  const tl = gsap.timeline();
+
+  if (images.length){
+    montageEl.style.opacity = '1';
+    const perImage = images.length > 8 ? 0.42 : 0.6;
+    const step = perImage * 0.7;
+    images.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      montageEl.appendChild(img);
+      const at = i * step;
+      tl.fromTo(img, { opacity: 0, scale: 1 },
+        { opacity: 1, scale: 1.045, duration: perImage * 0.65, ease: 'sine.inOut' }, at)
+        .to(img, { opacity: 0, duration: perImage * 0.35, ease: 'sine.in' }, at + perImage * 0.65);
+    });
+    tl.to(montageEl, { opacity: 0, duration: 0.5, ease: 'sine.in' }, '>-0.1');
+  }
+
+  // Black hole suck — reuses the existing particle implosion untouched, just
+  // sequenced into the timeline instead of firing on its own fixed clock.
+  tl.call(() => { spawnCelebrationParticles(); }, null, images.length ? '>' : 0);
+  tl.call(revealText, null, '+=2.0');
 }
 document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
 
@@ -576,7 +664,7 @@ let avatarClicks = 0;
 document.getElementById('avatarImg').addEventListener('click', (e) => {
   e.stopPropagation();
   avatarClicks++;
-  if (avatarClicks >= 5){ avatarClicks = 0; triggerCelebration(STRINGS[currentLang].darkSide, ''); }
+  if (avatarClicks >= 5){ avatarClicks = 0; triggerCelebration(null, STRINGS[currentLang].darkSide, [], null); }
 });
 
 async function fetchStats(){
