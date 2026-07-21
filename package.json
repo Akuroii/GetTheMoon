@@ -1,0 +1,11 @@
+{
+  "name": "getthemoon-milestone-journey",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.0"
+  }
+}
