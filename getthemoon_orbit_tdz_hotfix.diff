@@ -1,0 +1,24 @@
+--- live_index.html	2026-07-21 17:23:17.354433689 +0000
++++ patched_index.html	2026-07-21 17:24:23.770433689 +0000
+@@ -526,6 +526,10 @@
+ let currentLang = 'en';
+ let currentSubs = 0;
+ let milestoneIdx = 0;
++// Orbit state must be initialized before applyLang(), because applyLang() calls renderMilestone().
++let orbitMarkerEls = [];
++let orbitCurrentEl = null;
++let orbitTrackLength = 0;
+ 
+ function applyLang(lang, animate){
+   const s = STRINGS[lang];
+@@ -582,10 +586,6 @@
+   return `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`;
+ }
+ 
+-let orbitMarkerEls = [];
+-let orbitCurrentEl = null;
+-let orbitTrackLength = 0;
+-
+ function buildOrbitMarkers(){
+   const wrap = document.getElementById('orbitMarkers');
+   wrap.innerHTML = '';
