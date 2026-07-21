@@ -1,9 +1,16 @@
+function parseISODuration(iso) {
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  const h = parseInt((m && m[1]) || '0', 10);
+  const mi = parseInt((m && m[2]) || '0', 10);
+  const s = parseInt((m && m[3]) || '0', 10);
+  return h * 3600 + mi * 60 + s;
+}
+
 export default async function handler(req, res) {
   const API_KEY = process.env.YOUTUBE_API_KEY;
   const CHANNEL_ID = process.env.CHANNEL_ID || 'UCLtCWRYhYmMof8kw7Ib1oqA'; // GetTheMoon
 
-  // Every YouTube channel's "uploads" playlist ID is just the channel ID
-  // with "UC" swapped for "UU" — this avoids spending an extra API call.
+  // Every channel's "uploads" playlist ID is the channel ID with "UC" swapped for "UU".
   const UPLOADS_PLAYLIST = 'UU' + CHANNEL_ID.slice(2);
 
   if (!API_KEY) {
@@ -11,7 +18,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=25&key=${API_KEY}`;
+    // Note: this pulls the most recent 50 uploads (one API page). If the channel
+    // grows past 50 videos and you want the *entire* history on the timeline,
+    // this would need pagination added — ask if you want that upgrade later.
+    const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=50&key=${API_KEY}`;
     const plRes = await fetch(plUrl);
     const plJson = await plRes.json();
 
@@ -25,29 +35,39 @@ export default async function handler(req, res) {
     );
     const ids = items.map(it => it.snippet.resourceId.videoId).join(',');
 
-    const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${API_KEY}`;
+    const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${ids}&key=${API_KEY}`;
     const vRes = await fetch(vUrl);
     const vJson = await vRes.json();
 
-    const viewsById = {};
+    const infoById = {};
     (vJson.items || []).forEach(v => {
-      viewsById[v.id] = parseInt(v.statistics.viewCount || '0', 10);
+      infoById[v.id] = {
+        views: parseInt(v.statistics.viewCount || '0', 10),
+        durationSec: parseISODuration(v.contentDetails.duration)
+      };
     });
 
-    const videos = items.map(it => ({
-      id: it.snippet.resourceId.videoId,
-      title: it.snippet.title,
-      views: viewsById[it.snippet.resourceId.videoId] || 0
-    }));
+    const longVideos = items
+      .map(it => {
+        const info = infoById[it.snippet.resourceId.videoId] || { views: 0, durationSec: 0 };
+        return {
+          id: it.snippet.resourceId.videoId,
+          title: it.snippet.title,
+          publishedAt: it.snippet.publishedAt,
+          views: info.views
+        };
+      })
+      // exclude Shorts (60 seconds or under)
+      .filter((v, i) => (infoById[v.id] ? infoById[v.id].durationSec > 60 : true));
 
-    const recent = videos.slice(0, 6);
-    const popular = [...videos].sort((a, b) => b.views - a.views).slice(0, 6);
+    const recent = longVideos.slice(0, 6);
+    const popular = [...longVideos].sort((a, b) => b.views - a.views).slice(0, 6);
+    const timeline = [...longVideos].sort(
+      (a, b) => new Date(a.publishedAt) - new Date(b.publishedAt)
+    );
 
-    // These change rarely, so cache longer than the stats endpoint (10 minutes)
-    // to keep well within YouTube's free daily quota.
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
-
-    res.status(200).json({ recent, popular, updatedAt: new Date().toISOString() });
+    res.status(200).json({ recent, popular, timeline, updatedAt: new Date().toISOString() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'videos_unavailable' });
