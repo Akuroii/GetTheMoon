@@ -18,7 +18,6 @@
     --gold: #f5c453;
     --violet: #7c6fee;
     --pink: #ff5ea8;
-    --silver: #c7c6d6;
     --line: rgba(240,238,252,0.10);
   }
 
@@ -34,9 +33,6 @@
 
   a{color:inherit; text-decoration:none;}
   ::selection{ background: var(--violet); color: #fff; }
-  button{ font: inherit; }
-
-  :focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
 
   #sky{ position: fixed; inset:0; z-index:0; pointer-events:none; }
   #dust{ position: fixed; inset:0; z-index:2; pointer-events:none; }
@@ -47,7 +43,6 @@
   .brand-group{ display:flex; align-items:center; gap:12px; }
   .avatar-orbit{ position:relative; width:36px; height:36px; }
   .avatar-orbit .ring{ position:absolute; inset:-6px; border:1px dashed var(--line); border-radius:50%; animation: spin 30s linear infinite; }
-  .avatar-orbit .ring .adot{ position:absolute; width:3px; height:3px; border-radius:50%; background:var(--gold); box-shadow:0 0 5px 1px var(--gold); top:-1.5px; left:50%; }
   .avatar-orbit img{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; cursor:pointer; }
   .brand{
     font-weight:700; font-size:15px; letter-spacing:0.14em; text-transform: uppercase;
@@ -115,85 +110,20 @@
   .count-label{ font-family:'Space Grotesk', sans-serif; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin-top: 4px; }
   .updated-line{ font-family:'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); opacity:0.5; margin-top:10px; }
 
-  /* ============ MILESTONE JOURNEY ============ */
-  .mj{
-    max-width: 760px; margin: 46px auto 0; padding: 26px 26px 22px;
-    border: 1px solid var(--line); border-radius: 20px;
-    background: linear-gradient(180deg, rgba(124,111,238,0.06), rgba(255,94,168,0.015) 60%, transparent);
-    text-align: left;
+  .milestone-wrap{ max-width:480px; margin:26px auto 0; display:flex; align-items:center; gap:10px; direction: ltr; }
+  .mbtn{ flex:0 0 auto; background:transparent; border:1px solid var(--line); color:var(--text-dim); width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:13px; }
+  .mbtn:hover{ border-color:var(--violet); color:var(--text); }
+  .mb-body{ flex:1; min-width:0; }
+  .mb-labels{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim); margin-bottom:6px; }
+  .mb-track{ position:relative; height:6px; border-radius:999px; background:var(--surface); border:1px solid var(--line); }
+  .mb-fill{ position:absolute; top:0; left:0; bottom:0; width:0%; border-radius:999px; background:linear-gradient(90deg, var(--violet), var(--gold)); box-shadow:0 0 12px -2px var(--gold); transition:width 1s cubic-bezier(.2,.8,.2,1); }
+  .mb-marker{
+    position:absolute; top:50%; left:0%; width:18px; height:18px;
+    transform:translate(-50%,-50%); transition:left 1s cubic-bezier(.2,.8,.2,1);
+    filter: drop-shadow(0 0 6px var(--gold));
   }
-  html[dir="rtl"] .mj{ text-align: right; }
-
-  .mj-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
-  .mj-eyebrow{ font-family:'Space Grotesk', sans-serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-dim); }
-  .mj-controls{ display:flex; align-items:center; gap:10px; direction: ltr; }
-  .mj-modes{ display:flex; gap:2px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px; }
-  .mj-mode{ font-family:'Space Grotesk', sans-serif; font-size:11px; padding:6px 12px; border-radius:999px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; transition: background .2s ease, color .2s ease; }
-  .mj-mode:hover{ color: var(--text); }
-  .mj-mode.active{ background: var(--surface-2); color: var(--gold); }
-  .mj-expand{ width:28px; height:28px; flex:0 0 auto; border-radius:50%; border:1px solid var(--line); background:transparent; color:var(--text-dim); display:flex; align-items:center; justify-content:center; cursor:pointer; transition: border-color .2s, color .2s, transform .2s; }
-  .mj-expand:hover{ border-color:var(--violet); color:var(--text); }
-  .mj-expand svg{ width:13px; height:13px; transition: transform .3s ease; }
-  .mj-expand[aria-pressed="true"] svg{ transform: rotate(180deg); }
-
-  .mj-progress{ display:flex; align-items:center; gap:16px; direction: ltr; }
-  .mj-ms{ text-align:center; flex:0 0 auto; min-width:64px; }
-  .mj-ms-num{ font-family:'IBM Plex Mono', monospace; font-size:15px; }
-  .mj-ms-lbl{ font-family:'Space Grotesk', sans-serif; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-top:2px; }
-  .mj-ms-start .mj-ms-num{ color: var(--silver); }
-  .mj-ms-end .mj-ms-num{ color: var(--gold); }
-
-  .mj-track-col{ flex:1; min-width:0; }
-  .mj-track{ position:relative; height:6px; border-radius:999px; background:var(--surface); border:1px solid var(--line); overflow:hidden; }
-  .mj-fill{ position:absolute; inset:0 auto 0 0; width:0%; border-radius:999px; background: linear-gradient(90deg, var(--violet), var(--gold)); box-shadow: 0 0 12px -2px var(--gold); transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
-  .mj-current{ margin-top:8px; text-align:center; font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--text-dim); }
-  .mj-current strong{ color: var(--text); font-weight:500; }
-
-  .mj-orbit-wrap{ position:relative; margin-top: 34px; }
-  .mj-orbit-scroll{ overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding-bottom: 4px; }
-  .mj-orbit-scroll::-webkit-scrollbar{ height:4px; }
-  .mj-orbit-scroll::-webkit-scrollbar-thumb{ background: var(--line); border-radius:2px; }
-  .mj-orbit-line{ position:relative; height: 56px; min-width: 100%; direction: ltr; }
-  .mj-orbit-line::before{
-    content:''; position:absolute; left:0; right:0; top:50%;
-    border-top: 1px dashed var(--line);
-  }
-  .mj-orbit-track{ position:relative; height:100%; transition: min-width .35s ease; }
-
-  .mj-asteroid{
-    position:absolute; top:50%; transform: translate(-50%,-50%);
-    background:none; border:none; padding:2px; cursor:pointer; z-index:1;
-    transition: transform .22s cubic-bezier(.2,.8,.2,1);
-  }
-  .mj-asteroid svg{ display:block; width:20px; height:20px; overflow: visible; filter: drop-shadow(0 0 4px rgba(124,111,238,0.55)); transition: filter .22s ease; }
-  .mj-asteroid.featured svg{ filter: drop-shadow(0 0 6px rgba(245,196,83,0.5)); }
-  .mj-asteroid.popular svg{ filter: drop-shadow(0 0 9px rgba(245,196,83,0.75)); }
-  .mj-asteroid:hover, .mj-asteroid:focus-visible{ transform: translate(-50%,-50%) scale(1.35) rotate(8deg); z-index:2; }
-  .mj-asteroid:hover svg, .mj-asteroid:focus-visible svg{ filter: drop-shadow(0 0 12px rgba(245,196,83,0.9)) brightness(1.15); }
-  .mj-asteroid:focus-visible{ outline-offset: 4px; border-radius:50%; }
-
-  .mj-tip{
-    position:absolute; bottom: 30px; left:50%; transform: translateX(-50%) translateY(4px);
-    width: 172px; background: var(--surface); border:1px solid var(--line); border-radius:10px;
-    overflow:hidden; opacity:0; pointer-events:none; transition: opacity .16s ease, transform .16s ease;
-    box-shadow: 0 14px 32px -10px rgba(0,0,0,0.65); z-index: 6;
-  }
-  .mj-asteroid:hover .mj-tip, .mj-asteroid:focus-visible .mj-tip{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
-  .mj-tip img{ width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--surface-2); }
-  .mj-tip-info{ padding:8px 10px; }
-  .mj-tip-title{ font-family:'Space Grotesk', sans-serif; font-size:11px; line-height:1.32; color:var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .mj-tip-meta{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--text-dim); margin-top:5px; }
-
-  .mj-caption{ margin-top:16px; text-align:center; font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--text-dim); }
-  .mj-empty{ text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--text-dim); padding: 18px 0; }
-
-  @media (max-width: 640px){
-    .mj{ padding: 20px 16px 18px; border-radius:16px; }
-    .mj-head{ margin-bottom:18px; }
-    .mj-ms{ min-width:52px; }
-    .mj-ms-num{ font-size:13px; }
-    .mj-mode{ padding:5px 9px; font-size:10px; }
-  }
+  .mb-marker svg{ width:100%; height:100%; display:block; }
+  .mb-pct{ text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--gold); margin-top:10px; }
 
   .stats{ display:flex; justify-content:center; gap: 48px; margin-top: 44px; flex-wrap: wrap; }
   .stat{ text-align:center; }
@@ -220,6 +150,31 @@
   .vcard .meta{ font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); margin-top:6px; }
 
   footer{ text-align:center; margin-top: 100px; font-family:'Space Grotesk', sans-serif; font-size: 12px; color: var(--text-dim); }
+
+  .timeline-wrap{ max-width:840px; margin:0 auto; }
+  .timeline-track{
+    position:relative; height:56px; margin: 30px 6px 16px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .timeline-dot{
+    position:absolute; bottom:-6px; width:10px; height:10px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 55%, var(--pink));
+    box-shadow: 0 0 9px 2px var(--violet);
+    transform: translateX(-50%);
+    cursor:pointer; transition: transform .2s, box-shadow .2s;
+  }
+  .timeline-dot:hover{ transform: translateX(-50%) scale(1.7); box-shadow: 0 0 16px 4px var(--pink); }
+  .timeline-tooltip{
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    background: var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding: 6px 10px; font-family:'Space Grotesk', sans-serif; font-size:11px;
+    width:170px; text-align:center; line-height:1.35;
+    opacity:0; pointer-events:none; transition:opacity .15s;
+  }
+  .timeline-dot:hover .timeline-tooltip{ opacity:1; }
+  .timeline-caption{
+    text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--text-dim);
+  }
 
   #celebrate{ position: fixed; inset:0; z-index: 50; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at center, #000 0%, #000 30%, rgba(0,0,0,0.95) 60%); opacity:0; pointer-events:none; transition: opacity 1.2s ease; }
   #celebrate.show{ opacity:1; pointer-events:all; }
@@ -262,7 +217,6 @@
     .orbit-ring, .horizon, .avatar-orbit .ring{ animation: none; }
     .moon-fill, .moon-glow, .moon-photo{ transition: none; }
     .glitching{ animation:none; }
-    .mj-asteroid, .mj-asteroid svg, .mj-fill, .mj-expand svg{ transition: none; }
   }
   @media (max-width: 560px){
     .moon-stage{ width: 240px; height:240px; }
@@ -279,7 +233,7 @@
   <header class="top">
     <div class="brand-group">
       <div class="avatar-orbit">
-        <div class="ring"><div class="adot"></div></div>
+        <div class="ring"></div>
         <img id="avatarImg" src="" alt="GetTheMoon avatar" style="display:none">
       </div>
       <div class="brand">get<span>the</span>moon</div>
@@ -312,51 +266,23 @@
     <div class="count-wrap">
       <div class="count" id="countNum">🌑</div>
       <div class="count-label" id="txtSubscribers">Subscribers</div>
+
+      <div class="milestone-wrap">
+        <button class="mbtn" id="mbPrev">‹</button>
+        <div class="mb-body">
+          <div class="mb-labels"><span id="mbStart">0</span><span id="mbEnd">1,000</span></div>
+          <div class="mb-track">
+            <div class="mb-fill" id="mbFill"></div>
+            <div class="mb-marker" id="mbMarker">
+              <svg viewBox="0 0 32 32"><path d="M20 4a13 13 0 1 0 0 24 10.5 10.5 0 1 1 0-24z" fill="var(--gold)"/></svg>
+            </div>
+          </div>
+        </div>
+        <button class="mbtn" id="mbNext">›</button>
+      </div>
+      <div class="mb-pct" id="mbPct">0%</div>
+
       <div class="updated-line" id="updatedLine"></div>
-    </div>
-
-    <!-- ============ MILESTONE JOURNEY ============ -->
-    <div class="mj" id="milestoneJourney" aria-label="Milestone journey">
-      <div class="mj-head">
-        <span class="mj-eyebrow" id="txtJourneyEyebrow">Milestone Journey</span>
-        <div class="mj-controls">
-          <div class="mj-modes" id="mjModes" role="tablist" aria-label="Timeline range">
-            <button class="mj-mode active" data-mode="journey" role="tab" aria-selected="true" id="mjModeJourney">Journey</button>
-            <button class="mj-mode" data-mode="12m" role="tab" aria-selected="false" id="mjMode12">12mo</button>
-            <button class="mj-mode" data-mode="6m" role="tab" aria-selected="false" id="mjMode6">6mo</button>
-            <button class="mj-mode" data-mode="all" role="tab" aria-selected="false" id="mjModeAll">All</button>
-          </div>
-          <button class="mj-expand" id="mjExpand" aria-pressed="false" aria-label="Expand timeline" title="Expand timeline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="mj-progress">
-        <div class="mj-ms mj-ms-start">
-          <div class="mj-ms-num" id="mjStart">—</div>
-          <div class="mj-ms-lbl" id="txtReached">reached</div>
-        </div>
-        <div class="mj-track-col">
-          <div class="mj-track"><div class="mj-fill" id="mjFill"></div></div>
-          <div class="mj-current" id="mjCurrent">—</div>
-        </div>
-        <div class="mj-ms mj-ms-end">
-          <div class="mj-ms-num" id="mjEnd">—</div>
-          <div class="mj-ms-lbl" id="txtNext">next</div>
-        </div>
-      </div>
-
-      <div class="mj-orbit-wrap">
-        <div class="mj-orbit-scroll">
-          <div class="mj-orbit-line" id="mjOrbitLine">
-            <div class="mj-orbit-track" id="mjOrbitTrack"></div>
-          </div>
-        </div>
-      </div>
-      <div class="mj-caption" id="mjCaption">loading…</div>
     </div>
 
     <div class="stats">
@@ -373,6 +299,12 @@
 
   <div class="section-head" id="txtPopularHead">Fan favorites</div>
   <div class="carousel" id="carouselPopular"><div class="carousel-msg">loading…</div></div>
+
+  <div class="section-head" id="txtTimelineHead">Every long upload</div>
+  <div class="timeline-wrap">
+    <div class="timeline-track" id="timelineTrack"></div>
+    <div class="timeline-caption" id="timelineCaption">loading…</div>
+  </div>
 
   <footer id="txtFooter">made with orbits and a little stardust · getthemoon</footer>
 </div>
@@ -392,21 +324,6 @@ const CONFIG = {
   testGoal: null,
   pollMs: 30000,
   milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000],
-  // "Surprise" celebrations: numbers that don't appear anywhere on the
-  // visible Milestone Journey progress bar, so crossing one is a genuine
-  // surprise to visitors — the same full-screen celebration used for the
-  // 100K goal fires, with its own message. Add as many as you like; each
-  // fires once per browser session, the moment the count is observed
-  // crossing it (not retroactively on page load if already past).
-  // To test one locally, temporarily lower `subs` below your mock
-  // subscriber count in mjMockStats() below.
-  surpriseMilestones: [
-    {
-      subs: 96000,
-      msg: { en: '96,000. The horizon is glowing.', ar: '٩٦,٠٠٠. الأفق يتوهّج.' },
-      sub: { en: 'Almost home.', ar: 'اقتربنا.' }
-    }
-  ],
   platforms: [
     { label: "Main Channel", color: "#ff5ea8", url: "https://www.youtube.com/@GetTheMoon" },
     { label: "EN Channel",   color: "#7c6fee", url: "https://www.youtube.com/@GetTheMoonus" },
@@ -416,61 +333,30 @@ const CONFIG = {
   ]
 };
 
-// Set to false once /api/stats and /api/videos are deployed and returning
-// real data. While true, the whole page (subscriber count, moon fill,
-// milestone journey, carousels) runs on illustrative sample data instead of
-// calling the API — this is what lets you open this file directly, with no
-// server running, and see everything working. See README.md for the small
-// backend addition /api/videos still needs (the `videos` + `milestoneReachedAt`
-// fields) before you flip this off.
-const USE_MOCK_DATA = true;
-
-function mjMockStats(){
-  return {
-    subscribers: 82410,
-    views: 15230412,
-    videos: 191,
-    avatar: null,
-    milestoneReachedAt: null,
-    updatedAt: new Date().toISOString()
-  };
-}
-
 const STRINGS = {
   en: { dir:"ltr", langLabel:"EN", live:"live", eyebrow:"The subscriber watch",
     headline:'Every orbit brings us <em>closer</em><br>to the Moon.',
     subline:"Updating on its own — no refresh needed.",
     subscribers:"Subscribers", views:"Total Views", videos:"Videos", milestone:"Next Milestone",
-    recentHead:"Recent uploads", popularHead:"Fan favorites",
+    recentHead:"Recent uploads", popularHead:"Fan favorites", timelineHead:"Every long upload",
     footer:"made with orbits and a little stardust · getthemoon",
     celebrateHint:"click anywhere to close", darkSide:"You found the dark side of the Moon.",
     newStart:"A new orbit begins.",
-    loading:"loading…", videosUnavailable:"videos unavailable right now",
-    journeyEyebrow:"Milestone Journey", reached:"reached", next:"next",
-    modeJourney:"Journey", mode12:"12mo", mode6:"6mo", modeAll:"All",
-    expand:"Expand timeline", collapse:"Collapse timeline",
-    currentFmt:(subs,pct)=>`${subs.toLocaleString()} subscribers · ${pct}% of the way there`,
-    captionFmt:(n,from,to)=>`${n} upload${n===1?'':'s'} · ${from} → ${to} · click an asteroid to watch`,
-    noUploads:"no uploads in this range yet" },
+    loading:"loading…", videosUnavailable:"videos unavailable right now" },
   ar: { dir:"rtl", langLabel:"AR", live:"مباشر", eyebrow:"مراقبة المشتركين",
     headline:'كل مدار يقربنا <em>أكثر</em><br>من القمر.',
     subline:"يتحدث نفسه — بدون تحديث الصفحة.",
     subscribers:"مشترك", views:"مشاهدات", videos:"فيديو", milestone:"الهدف القادم",
-    recentHead:"أحدث الفيديوهات", popularHead:"المفضلة لدى الجمهور",
+    recentHead:"أحدث الفيديوهات", popularHead:"المفضلة لدى الجمهور", timelineHead:"كل فيديو طويل",
     footer:"صُنع بمدارات وقليل من غبار النجوم · getthemoon",
     celebrateHint:"اضغط في أي مكان للإغلاق", darkSide:"لقد وصلت إلى الجانب المظلم من القمر.",
     newStart:"يبدأ مدار جديد.",
-    loading:"جارٍ التحميل…", videosUnavailable:"الفيديوهات غير متاحة حاليًا",
-    journeyEyebrow:"رحلة المحطات", reached:"تحقق", next:"التالي",
-    modeJourney:"الرحلة", mode12:"12 شهر", mode6:"6 أشهر", modeAll:"الكل",
-    expand:"توسيع الخط الزمني", collapse:"طي الخط الزمني",
-    currentFmt:(subs,pct)=>`${subs.toLocaleString()} مشترك · ${pct}% من الطريق`,
-    captionFmt:(n,from,to)=>`${n} فيديو · ${from} → ${to} · اضغط على أي كويكب للمشاهدة`,
-    noUploads:"لا توجد فيديوهات في هذا النطاق بعد" }
+    loading:"جارٍ التحميل…", videosUnavailable:"الفيديوهات غير متاحة حاليًا" }
 };
 
 let currentLang = 'en';
 let currentSubs = 0;
+let milestoneIdx = 0;
 
 function applyLang(lang, animate){
   const s = STRINGS[lang];
@@ -487,32 +373,44 @@ function applyLang(lang, animate){
   document.getElementById('txtMilestone').textContent = s.milestone;
   document.getElementById('txtRecentHead').textContent = s.recentHead;
   document.getElementById('txtPopularHead').textContent = s.popularHead;
+  document.getElementById('txtTimelineHead').textContent = s.timelineHead;
   document.getElementById('txtFooter').textContent = s.footer;
   document.getElementById('celebrateHint').textContent = s.celebrateHint;
-  document.getElementById('txtJourneyEyebrow').textContent = s.journeyEyebrow;
-  document.getElementById('txtReached').textContent = s.reached;
-  document.getElementById('txtNext').textContent = s.next;
-  document.getElementById('mjModeJourney').textContent = s.modeJourney;
-  document.getElementById('mjMode12').textContent = s.mode12;
-  document.getElementById('mjMode6').textContent = s.mode6;
-  document.getElementById('mjModeAll').textContent = s.modeAll;
-  document.getElementById('mjExpand').setAttribute('aria-label', MJ.expanded ? s.collapse : s.expand);
   currentLang = lang;
-  renderMJProgress();
-  renderMJOrbit();
+  renderMilestone();
   if (animate){
     const wrap = document.querySelector('.wrap');
     wrap.classList.add('glitching');
     setTimeout(() => wrap.classList.remove('glitching'), 320);
   }
 }
+applyLang('en', false);
 document.getElementById('langToggle').addEventListener('click', () => {
   applyLang(currentLang === 'en' ? 'ar' : 'en', true);
 });
 
+function renderMilestone(){
+  const ms = CONFIG.milestones;
+  const end = ms[milestoneIdx];
+  const start = milestoneIdx === 0 ? 0 : ms[milestoneIdx - 1];
+  const pct = Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
+  document.getElementById('mbStart').textContent = start.toLocaleString();
+  document.getElementById('mbEnd').textContent = end.toLocaleString();
+  document.getElementById('mbFill').style.width = (pct * 100).toFixed(1) + '%';
+  document.getElementById('mbMarker').style.left = (pct * 100).toFixed(1) + '%';
+  document.getElementById('mbPct').textContent = (pct * 100).toFixed(1) + '%';
+}
+document.getElementById('mbPrev').addEventListener('click', () => {
+  milestoneIdx = Math.max(0, milestoneIdx - 1);
+  renderMilestone();
+});
+document.getElementById('mbNext').addEventListener('click', () => {
+  milestoneIdx = Math.min(CONFIG.milestones.length - 1, milestoneIdx + 1);
+  renderMilestone();
+});
+
 let lastSubs = null;
 let firstLoad = true;
-const firedSurprises = new Set();
 document.getElementById('countNum').innerHTML = '<span class="count-pulse"></span>';
 
 function effectiveGoal(){ return CONFIG.testGoal || CONFIG.goal; }
@@ -546,9 +444,13 @@ function applyStats(data){
   document.getElementById('updatedLine').textContent = 'updated ' + new Date(data.updatedAt).toLocaleTimeString();
 
   currentSubs = data.subscribers;
-  MJ.milestoneReachedAt = data.milestoneReachedAt || null;
-  renderMJProgress();
-  renderMJOrbit();
+  if (lastSubs === null){
+    for (let i = 0; i < CONFIG.milestones.length; i++){
+      if (currentSubs < CONFIG.milestones[i]){ milestoneIdx = i; break; }
+      milestoneIdx = i;
+    }
+  }
+  renderMilestone();
 
   if (data.avatar){
     const photo = document.getElementById('moonPhoto');
@@ -564,22 +466,13 @@ function applyStats(data){
   if (lastSubs !== null && lastSubs < goal && data.subscribers >= goal){
     triggerCelebration();
   }
-  if (lastSubs !== null){
-    CONFIG.surpriseMilestones.forEach(sm => {
-      if (!firedSurprises.has(sm.subs) && lastSubs < sm.subs && data.subscribers >= sm.subs){
-        firedSurprises.add(sm.subs);
-        const msg = sm.msg[currentLang] || sm.msg.en;
-        const sub = sm.sub ? (sm.sub[currentLang] || sm.sub.en) : '';
-        triggerCelebration(msg, sub, 10);
-      }
-    });
-  }
   lastSubs = data.subscribers;
 }
 
-function spawnCelebrationParticles(n = 18){
+function spawnCelebrationParticles(){
   const colors = ['#ff5ea8','#7c6fee','#4d7dff','#f5c453'];
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  const n = 18;
   const particles = [];
   for (let i = 0; i < n; i++){
     const p = document.createElement('div');
@@ -612,13 +505,13 @@ function spawnCelebrationParticles(n = 18){
   setTimeout(() => particles.forEach(p => p.remove()), 2200);
 }
 
-function triggerCelebration(customMsg, customSub, particleCount){
+function triggerCelebration(customMsg, customSub){
   const el = document.getElementById('celebrate');
   const textEl = document.getElementById('celebrateText');
   textEl.classList.remove('show');
   document.getElementById('celebrateHint').style.opacity = '0';
   el.classList.add('show');
-  spawnCelebrationParticles(particleCount);
+  spawnCelebrationParticles();
 
   setTimeout(() => {
     document.getElementById('celebrateMsg').textContent =
@@ -644,10 +537,6 @@ document.getElementById('avatarImg').addEventListener('click', (e) => {
 });
 
 async function fetchStats(){
-  if (USE_MOCK_DATA){
-    applyStats(mjMockStats());
-    return;
-  }
   try{
     const res = await fetch('/api/stats');
     if(!res.ok) throw new Error('bad response');
@@ -659,213 +548,6 @@ async function fetchStats(){
 }
 fetchStats();
 setInterval(fetchStats, CONFIG.pollMs);
-
-/* ============================================================
-   MILESTONE JOURNEY
-   Expects /api/videos to eventually return:
-     { recent: [...], popular: [...],
-       videos: [{ id, title, views, publishedAt }, ...],   // full recent upload history
-       milestoneReachedAt: "2026-03-11T00:00:00Z" | null }  // when the current bracket started
-   Until that ships, USE_MOCK_DATA renders illustrative sample data so the
-   component is fully visible and interactive on its own.
-   ============================================================ */
-const MJ = {
-  mode: 'journey',
-  expanded: false,
-  videos: [],           // {id, title, views, publishedAt}
-  milestoneReachedAt: null
-};
-
-function mjHash(str){
-  let h = 0;
-  for (let i = 0; i < str.length; i++){ h = (h << 5) - h + str.charCodeAt(i); h |= 0; }
-  return h;
-}
-
-function mjCategorize(views, allViews){
-  if (allViews.length < 2) return 'normal';
-  const sorted = [...allViews].sort((a,b)=>a-b);
-  const pct = (p) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
-  if (views >= pct(0.9) && allViews.length >= 4) return 'popular';
-  if (views >= pct(0.65) && allViews.length >= 2) return 'featured';
-  return 'normal';
-}
-
-function mjAsteroidSVG(kind, seed){
-  const h = mjHash(seed);
-  const jx = (h % 5) - 2;          // -2..2
-  const jy = ((h >> 3) % 5) - 2;
-  const ringRot = -20 + (h % 25);   // -20..4
-  const gid = 'astGrad' + Math.abs(h);
-  let ring = '';
-  let sparkle = '';
-  if (kind === 'featured' || kind === 'popular'){
-    ring = `<ellipse cx="12" cy="12" rx="13" ry="4" fill="none" stroke="rgba(245,196,83,0.4)" stroke-width="1" transform="rotate(${ringRot} 12 12)"/>`;
-  }
-  if (kind === 'popular'){
-    sparkle = `<path d="M18.5 2.5 L19.1 4.3 L20.9 4.9 L19.1 5.5 L18.5 7.3 L17.9 5.5 L16.1 4.9 L17.9 4.3 Z" fill="var(--gold)"/>`;
-  }
-  const rockFill = kind === 'normal' ? 'var(--silver)' : 'var(--gold)';
-  return `
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="${gid}" cx="35%" cy="32%" r="70%">
-          <stop offset="0%" stop-color="${rockFill}" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="${rockFill}" stop-opacity="0.35"/>
-        </radialGradient>
-      </defs>
-      ${ring}
-      <circle cx="12" cy="12" r="8.5" fill="url(#${gid})"/>
-      <ellipse cx="${9+jx}" cy="${9+jy}" rx="1.8" ry="1.3" fill="rgba(0,0,0,0.32)"/>
-      <ellipse cx="${15-jx}" cy="${14-jy}" rx="1.4" ry="1" fill="rgba(0,0,0,0.28)"/>
-      ${sparkle}
-    </svg>`;
-}
-
-function mjMockVideos(){
-  const now = Date.now();
-  const day = 86400000;
-  const titles = [
-    'The moon looked different tonight', 'Q&A: how we edit every video', 'Chasing a meteor shower',
-    'We tried filming in total darkness', '3am thoughts on the roof', 'Answering your comments',
-    'This one almost didn\u2019t make the cut', 'Behind the telescope', 'A quiet night, a loud sky',
-    'What 75,000 of you taught me', 'The equipment breakdown you asked for', 'Everything changed after this upload'
-  ];
-  return titles.map((t, i) => ({
-    id: 'mock' + i,
-    title: t,
-    views: Math.round(1200 + Math.pow(i % 5, 2.4) * 900 + (i === 9 ? 42000 : 0) + (i === 2 ? 15000 : 0)),
-    publishedAt: new Date(now - (titles.length - i) * 11 * day).toISOString()
-  }));
-}
-
-function mjFilterByMode(videos, mode){
-  const now = Date.now();
-  const day = 86400000;
-  if (mode === '12m') return videos.filter(v => now - new Date(v.publishedAt).getTime() <= 365 * day);
-  if (mode === '6m')  return videos.filter(v => now - new Date(v.publishedAt).getTime() <= 183 * day);
-  if (mode === 'all') return videos;
-  // journey: since the last milestone was reached, falling back to the most
-  // recent dozen uploads when the backend hasn't supplied milestoneReachedAt yet.
-  if (MJ.milestoneReachedAt){
-    const since = new Date(MJ.milestoneReachedAt).getTime();
-    return videos.filter(v => new Date(v.publishedAt).getTime() >= since);
-  }
-  return videos.slice(-12);
-}
-
-function renderMJProgress(){
-  const s = STRINGS[currentLang];
-  const ms = CONFIG.milestones;
-  let idx = ms.length - 1;
-  for (let i = 0; i < ms.length; i++){ if (currentSubs < ms[i]){ idx = i; break; } }
-  const end = ms[idx];
-  const start = idx === 0 ? 0 : ms[idx - 1];
-  const pct = Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
-
-  document.getElementById('mjStart').textContent = start.toLocaleString();
-  document.getElementById('mjEnd').textContent = end.toLocaleString();
-  document.getElementById('mjFill').style.width = (pct * 100).toFixed(1) + '%';
-  document.getElementById('mjCurrent').innerHTML =
-    `<strong>${currentSubs.toLocaleString()}</strong> · ${s.currentFmt(currentSubs, (pct*100).toFixed(0)).split('·')[1] || ''}`.replace('  ',' ');
-  document.getElementById('mjCurrent').textContent = s.currentFmt(currentSubs, (pct * 100).toFixed(0));
-}
-
-function renderMJOrbit(){
-  const s = STRINGS[currentLang];
-  const track = document.getElementById('mjOrbitTrack');
-  const caption = document.getElementById('mjCaption');
-  const list = mjFilterByMode(MJ.videos, MJ.mode)
-    .slice()
-    .sort((a, b) => new Date(a.publishedAt) - new Date(b.publishedAt));
-
-  track.innerHTML = '';
-
-  if (!list.length){
-    caption.textContent = s.noUploads;
-    track.style.minWidth = '100%';
-    return;
-  }
-
-  const spacingPx = MJ.expanded ? 78 : 40;
-  const minWidth = Math.max(list.length * spacingPx, 260);
-  track.style.minWidth = minWidth + 'px';
-
-  const first = new Date(list[0].publishedAt).getTime();
-  const last = new Date(list[list.length - 1].publishedAt).getTime();
-  const span = Math.max(1, last - first);
-  const allViews = list.map(v => v.views);
-
-  list.forEach(v => {
-    const pct = list.length === 1 ? 50 : ((new Date(v.publishedAt).getTime() - first) / span) * 100;
-    const kind = mjCategorize(v.views, allViews);
-    const btn = document.createElement('button');
-    btn.className = `mj-asteroid ${kind}`;
-    btn.style.left = pct + '%';
-    btn.type = 'button';
-    const dateStr = new Date(v.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-    btn.setAttribute('aria-label', `${v.title} — ${Number(v.views).toLocaleString()} views, ${dateStr}. Opens on YouTube.`);
-    btn.innerHTML = `
-      ${mjAsteroidSVG(kind, v.id)}
-      <span class="mj-tip">
-        <img src="https://img.youtube.com/vi/${v.id.startsWith('mock') ? 'dQw4w9WgXcQ' : v.id}/mqdefault.jpg" alt="" loading="lazy">
-        <span class="mj-tip-info">
-          <span class="mj-tip-title">${v.title}</span>
-          <span class="mj-tip-meta">${Number(v.views).toLocaleString()} views · ${dateStr}</span>
-        </span>
-      </span>`;
-    btn.addEventListener('click', () => {
-      if (!v.id.startsWith('mock')) window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
-    });
-    track.appendChild(btn);
-  });
-
-  const fmt = d => new Date(d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-  caption.textContent = s.captionFmt(list.length, fmt(list[0].publishedAt), fmt(list[list.length - 1].publishedAt));
-}
-
-document.querySelectorAll('.mj-mode').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.mj-mode').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected', 'true');
-    MJ.mode = btn.dataset.mode;
-    renderMJOrbit();
-  });
-});
-
-document.getElementById('mjExpand').addEventListener('click', () => {
-  MJ.expanded = !MJ.expanded;
-  const btn = document.getElementById('mjExpand');
-  btn.setAttribute('aria-pressed', String(MJ.expanded));
-  btn.setAttribute('aria-label', MJ.expanded ? STRINGS[currentLang].collapse : STRINGS[currentLang].expand);
-  renderMJOrbit();
-});
-
-async function fetchVideos(){
-  try{
-    if (USE_MOCK_DATA){
-      MJ.videos = mjMockVideos();
-      renderCarousel('carouselRecent', MJ.videos.slice(-6).reverse().map(v => ({ id: 'dQw4w9WgXcQ', title: v.title, views: v.views })));
-      renderCarousel('carouselPopular', [...MJ.videos].sort((a,b)=>b.views-a.views).slice(0,6).map(v => ({ id: 'dQw4w9WgXcQ', title: v.title, views: v.views })));
-      renderMJOrbit();
-      return;
-    }
-    const res = await fetch('/api/videos');
-    if(!res.ok) throw new Error('bad response');
-    const data = await res.json();
-    renderCarousel('carouselRecent', data.recent);
-    renderCarousel('carouselPopular', data.popular);
-    MJ.videos = data.videos || [];
-    renderMJOrbit();
-  }catch(err){
-    console.error(err);
-    renderCarousel('carouselRecent', []);
-    renderCarousel('carouselPopular', []);
-    MJ.videos = [];
-    renderMJOrbit();
-  }
-}
 
 function renderCarousel(containerId, videos){
   const el = document.getElementById(containerId);
@@ -888,7 +570,45 @@ function renderCarousel(containerId, videos){
   });
 }
 
-applyLang('en', false);
+function renderTimeline(videos){
+  const track = document.getElementById('timelineTrack');
+  const caption = document.getElementById('timelineCaption');
+  track.innerHTML = '';
+  if (!videos || !videos.length){
+    caption.textContent = STRINGS[currentLang].videosUnavailable;
+    return;
+  }
+  const first = new Date(videos[0].publishedAt).getTime();
+  const last = new Date(videos[videos.length - 1].publishedAt).getTime();
+  const span = Math.max(1, last - first);
+  videos.forEach(v => {
+    const pct = ((new Date(v.publishedAt).getTime() - first) / span) * 100;
+    const dot = document.createElement('div');
+    dot.className = 'timeline-dot';
+    dot.style.left = pct + '%';
+    dot.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank');
+    dot.innerHTML = `<div class="timeline-tooltip">${v.title}</div>`;
+    track.appendChild(dot);
+  });
+  const fmt = d => new Date(d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  caption.textContent = `${videos.length} long videos · ${fmt(videos[0].publishedAt)} to ${fmt(videos[videos.length - 1].publishedAt)} · hover to explore`;
+}
+
+async function fetchVideos(){
+  try{
+    const res = await fetch('/api/videos');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    renderCarousel('carouselRecent', data.recent);
+    renderCarousel('carouselPopular', data.popular);
+    renderTimeline(data.timeline);
+  }catch(err){
+    console.error(err);
+    renderCarousel('carouselRecent', []);
+    renderCarousel('carouselPopular', []);
+    renderTimeline([]);
+  }
+}
 fetchVideos();
 setInterval(fetchVideos, 10 * 60 * 1000);
 
