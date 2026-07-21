@@ -10,7 +10,6 @@ export default async function handler(req, res) {
   const API_KEY = process.env.YOUTUBE_API_KEY;
   const CHANNEL_ID = process.env.CHANNEL_ID || 'UCLtCWRYhYmMof8kw7Ib1oqA'; // GetTheMoon
 
-  // Every channel's "uploads" playlist ID is the channel ID with "UC" swapped for "UU".
   const UPLOADS_PLAYLIST = 'UU' + CHANNEL_ID.slice(2);
 
   if (!API_KEY) {
@@ -18,9 +17,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Note: this pulls the most recent 50 uploads (one API page). If the channel
-    // grows past 50 videos and you want the *entire* history on the timeline,
-    // this would need pagination added — ask if you want that upgrade later.
     const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=50&key=${API_KEY}`;
     const plRes = await fetch(plUrl);
     const plJson = await plRes.json();
@@ -57,7 +53,6 @@ export default async function handler(req, res) {
           views: info.views
         };
       })
-      // exclude Shorts (60 seconds or under)
       .filter((v, i) => (infoById[v.id] ? infoById[v.id].durationSec > 60 : true));
 
     const recent = longVideos.slice(0, 6);
