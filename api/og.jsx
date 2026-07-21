@@ -54,12 +54,12 @@ export default async function handler(req) {
   }
 
   const fillPct = Math.min(subs / GOAL, 1);
-  let start = 0, end = GOAL;
-  for (let i = 0; i < MILESTONES.length; i++) {
-    if (subs < MILESTONES[i]) { end = MILESTONES[i]; start = i === 0 ? 0 : MILESTONES[i - 1]; break; }
-    start = MILESTONES[i]; end = GOAL;
-  }
-  const segPct = Math.max(0, Math.min(1, (subs - start) / (end - start)));
+ let start = 0, end = GOAL;
+for (let i = 0; i < MILESTONES.length; i++) {
+  if (subs < MILESTONES[i]) { end = MILESTONES[i]; start = i === 0 ? 0 : MILESTONES[i - 1]; break; }
+  start = MILESTONES[i]; end = GOAL;
+}
+const segPct = start === end ? 1 : Math.max(0, Math.min(1, (subs - start) / (end - start)));
 
   return new ImageResponse(
     (
