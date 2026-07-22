@@ -526,6 +526,7 @@ const STRINGS = {
 let currentLang = 'en';
 let currentSubs = 0;
 let milestoneIdx = 0;
+// Orbit state must be initialized before applyLang(), because applyLang() calls renderMilestone().
 let orbitMarkerEls = [];
 let orbitCurrentEl = null;
 let orbitTrackLength = 0;
@@ -691,6 +692,28 @@ document.getElementById('countNum').innerHTML = '<span class="count-pulse"></spa
 
 function effectiveGoal(){ return CONFIG.testGoal || CONFIG.goal; }
 
+// ---- Real 100K celebration gating (once per browser) ----
+// localStorage can throw (private browsing, disabled storage, some in-app
+// browsers) so every access goes through these two guarded helpers rather
+// than touching window.localStorage directly.
+const CELEBRATION_FLAG_KEY = 'gtm_celebrated_100k';
+function safeLocalStorageGet(key){
+  try{ return window.localStorage.getItem(key); }catch(e){ return null; }
+}
+function safeLocalStorageSet(key, value){
+  try{ window.localStorage.setItem(key, value); }catch(e){ /* storage unavailable — celebration just won't persist */ }
+}
+// Real gate for the actual 100K celebration: fires once ever per browser,
+// whether it's crossed live during a session or the page simply loads
+// already past goal. Once fired it sets the flag so no later poll (every
+// CONFIG.pollMs) or reload replays it.
+function maybeTriggerRealCelebration(subscribers, goal){
+  if (subscribers < goal) return;
+  if (safeLocalStorageGet(CELEBRATION_FLAG_KEY) === '1') return;
+  triggerCelebration(goal, undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+  safeLocalStorageSet(CELEBRATION_FLAG_KEY, '1');
+}
+
 function animateNumber(el, from, to, dur = 1200){
   const start = performance.now();
   function tick(now){
@@ -737,9 +760,7 @@ function applyStats(data){
     }
   }
 
-  if (lastSubs !== null && lastSubs < goal && data.subscribers >= goal){
-    triggerCelebration(goal, undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
-  }
+  maybeTriggerRealCelebration(data.subscribers, goal);
   lastSubs = data.subscribers;
 }
 
@@ -850,8 +871,12 @@ function triggerCelebration(milestone, message, images, audio){
     const step = perImage * 0.7;
     images.forEach((src, i) => {
       const img = document.createElement('img');
-      img.src = src;
       img.alt = '';
+      // Defensive: a missing/404'd celebration image should just be invisible,
+      // not a broken-image icon, and must not stop the GSAP timeline — the
+      // tween below animates the <img> element itself, not its load state.
+      img.onerror = () => { img.style.display = 'none'; };
+      img.src = src;
       montageEl.appendChild(img);
       const at = i * step;
       tl.fromTo(img, { opacity: 0, scale: 1 },
@@ -899,6 +924,25 @@ async function fetchStats(){
 }
 fetchStats();
 setInterval(fetchStats, CONFIG.pollMs);
+
+// ---- Temporary public test hook: ?celebrate=1 ----
+// For manual QA only. Calls triggerCelebration() directly, bypassing
+// maybeTriggerRealCelebration() entirely, so it NEVER reads or writes
+// CELEBRATION_FLAG_KEY ("gtm_celebrated_100k") — the real 100K flag stays
+// untouched no matter how many times this is loaded. Remove this block
+// once celebration QA is done; it is not meant to ship long-term.
+(function initCelebrateTestHook(){
+  let forceTest = false;
+  try{
+    forceTest = new URLSearchParams(window.location.search).get('celebrate') === '1';
+  }catch(e){ forceTest = false; }
+  if (!forceTest) return;
+  // Small delay so this fires after initial page setup (orbit markers,
+  // first stats/videos fetch kicked off) rather than racing DOM/GSAP setup.
+  setTimeout(() => {
+    triggerCelebration(effectiveGoal(), undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+  }, 500);
+})();
 
 function escapeHtml(str){
   const div = document.createElement('div');
