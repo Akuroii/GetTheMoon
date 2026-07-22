@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get The Moon · 100K</title>
+<meta name="description" content="Get The Moon — chasing 100,000 subscribers, one orbit at a time.">
+<meta property="og:title" content="Get The Moon · Chasing 100K">
+<meta property="og:description" content="Watch the subscriber count rise toward 100,000, live.">
+<meta property="og:image" content="https://getthemoon.vercel.app/api/og">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://getthemoon.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Get The Moon · Chasing 100K">
+<meta name="twitter:description" content="Watch the subscriber count rise toward 100,000, live.">
+<meta name="twitter:image" content="https://getthemoon.vercel.app/api/og">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="icon" type="image/svg+xml" href="assets/meteor.svg">
+<link rel="alternate icon" href="assets/meteor-32.png">
+<link rel="apple-touch-icon" href="assets/meteor-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg: #04040a;
+    --surface: #0d0d1f;
+    --surface-2: #14142b;
+    --text: #f0eefc;
+    --text-dim: #9d98c2;
+    --gold: #f5c453;
+    --violet: #7c6fee;
+    --pink: #ff5ea8;
+    --line: rgba(240,238,252,0.10);
+    --nebula-violet: #6b4fff;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: var(--bg); color: var(--text); font-family: 'Spectral', serif; overflow-x: hidden; }
+  html[dir="rtl"] body{ font-family: 'Tajawal', sans-serif; }
+  html[dir="rtl"] h1{ font-family: 'Tajawal', sans-serif; font-style: normal; }
+
+  body.rem-cursor, body.rem-cursor *{
+    cursor: url('assets/meteor-cursor.png') 14 14, auto !important;
+  }
+
+  a{color:inherit; text-decoration:none;}
+  ::selection{ background: var(--violet); color: #fff; }
+
+  #nebula{ position: fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  #nebula::before, #nebula::after{
+    content:''; position:absolute; border-radius:50%; filter: blur(90px); mix-blend-mode: screen;
+  }
+  #nebula::before{
+    width:900px; height:900px; top:-320px; left:-220px; opacity:0.30;
+    background: radial-gradient(circle, var(--nebula-violet), transparent 70%);
+    animation: nebulaDrift1 60s ease-in-out infinite;
+  }
+  #nebula::after{
+    width:700px; height:700px; bottom:-260px; right:-160px; opacity:0.24;
+    background: radial-gradient(circle, var(--pink), transparent 70%);
+    animation: nebulaDrift2 75s ease-in-out infinite;
+  }
+  @keyframes nebulaDrift1{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(60px,40px) scale(1.08); } }
+  @keyframes nebulaDrift2{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-50px,-30px) scale(1.1); } }
+  #sky{ position: fixed; inset:0; z-index:0; pointer-events:none; }
+  #dust{ position: fixed; inset:0; z-index:2; pointer-events:none; }
+
+  .wrap{ position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 24px 120px; }
+
+  header.top{ display:flex; align-items:center; justify-content:space-between; padding: 28px 0 8px; font-family:'Space Grotesk', sans-serif; }
+  .brand-group{ display:flex; align-items:center; gap:12px; }
+  .avatar-orbit{ position:relative; width:36px; height:36px; }
+  .avatar-orbit .ring{ position:absolute; inset:-6px; border:1px dashed var(--line); border-radius:50%; animation: spin 30s linear infinite; }
+  .avatar-orbit img{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; cursor:pointer; }
+  .brand{
+    font-weight:700; font-size:15px; letter-spacing:0.14em; text-transform: uppercase;
+    background: linear-gradient(90deg, #ff5ea8, #7c6fee, #4d7dff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .top-right{ display:flex; align-items:center; gap:16px; }
+  .live-dot{ display:flex; align-items:center; gap:6px; font-family:'Space Grotesk', sans-serif; font-size:11px; letter-spacing:0.1em; color: var(--text-dim); text-transform:uppercase; }
+  .live-dot::before{ content:''; width:6px; height:6px; border-radius:50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink{ 50%{ opacity:0.3; } }
+  .icon-btn{ width:26px; height:26px; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-dim); font-family:'Space Grotesk', sans-serif; }
+  .icon-btn:hover{ border-color: var(--violet); color: var(--text); }
+  .icon-btn:focus-visible, .rem-toggle:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .rem-toggle{ width:10px; height:10px; padding:0; border-radius:50%; background: transparent; border: 1px solid var(--line); cursor: pointer; }
+  .rem-toggle:hover{ background: var(--pink); border-color: var(--pink); }
+
+  .hero{ text-align:center; padding: 60px 0 20px; }
+  .eyebrow{ font-family:'Space Grotesk', sans-serif; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 18px; }
+  h1{ font-family:'Spectral', serif; font-style: italic; font-weight: 400; font-size: clamp(28px, 5vw, 46px); line-height: 1.15; margin: 0 0 8px; }
+  h1 em{ color: var(--gold); font-style: normal; font-weight:600; }
+  .sub-line{ color: var(--text-dim); font-size: 16px; margin-bottom: 50px; }
+
+  .moon-stage{ position: relative; width: 320px; height: 320px; margin: 0 auto 36px; cursor: pointer; border-radius:50%; }
+  .moon-stage:focus-visible{ outline:2px solid var(--gold); outline-offset:8px; }
+  .orbit-ring{ position:absolute; inset: -34px; border: 1px dashed var(--line); border-radius: 50%; animation: spin 22s linear infinite; }
+  .orbit-ring .dot{ position:absolute; border-radius:50%; }
+  .orbit-ring .dot.d-violet{ width:9px; height:9px; background: var(--violet); box-shadow: 0 0 10px 2px var(--violet); }
+  .orbit-ring .dot.d-gold{ width:6px; height:6px; background: var(--gold); box-shadow: 0 0 8px 2px var(--gold); }
+  .orbit-ring .dot.d-pink{ width:7px; height:7px; background: var(--pink); box-shadow: 0 0 9px 2px var(--pink); }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .moon{
+    position:absolute; inset: 24px; border-radius: 50%;
+    background: #0a0a16;
+    box-shadow: inset -20px -20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--line);
+    overflow: hidden;
+  }
+  .moon-surface{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    filter: saturate(0.85) brightness(0.92);
+  }
+  .moon-fill{
+    position:absolute; inset:0; border-radius:50%;
+    box-shadow: inset 0 0 0 2px rgba(180,110,255, calc(var(--fill, 0) * 0.95)),
+                inset 0 0 26px 4px rgba(255,94,168, calc(var(--fill, 0) * 0.55)),
+                inset 0 0 40px 8px rgba(77,125,255, calc(var(--fill, 0) * 0.35));
+    transition: box-shadow 1.4s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
+  }
+  .moon-glow{
+    position:absolute; inset: -40px; border-radius:50%;
+    background: radial-gradient(circle, rgba(180,110,255,0.28), rgba(255,94,168,0.12) 45%, transparent 68%);
+    filter: blur(8px); opacity: calc(var(--fill, 0) * 1.1);
+    transition: opacity 1.4s ease; pointer-events:none;
+  }
+
+  .count-wrap{ text-align:center; }
+  .count{ font-family:'IBM Plex Mono', monospace; font-size: clamp(38px, 7vw, 58px); font-weight:500; letter-spacing: 0.01em; }
+  .count-pulse{
+    display:inline-block; width:16px; height:16px; border-radius:50%;
+    background: radial-gradient(circle, var(--pink), var(--violet));
+    animation: countPulse 1.1s ease-in-out infinite;
+  }
+  @keyframes countPulse{ 50%{ transform:scale(1.4); opacity:0.6; } }
+  .count-label{ font-family:'Space Grotesk', sans-serif; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin-top: 4px; }
+  .updated-line{ font-family:'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); opacity:0.5; margin-top:10px; }
+
+  /* ---- Orbital milestone track (wraps the moon; replaces the old linear bar) ---- */
+  .orbit-wrap{ position:relative; width:460px; height:460px; margin:0 auto 8px; }
+  .orbit-svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .orbit-track{ stroke: var(--line); stroke-width:2; stroke-linecap:round; }
+  .orbit-progress{
+    stroke: url(#orbitProgressGrad); stroke-width:3; stroke-linecap:round;
+    filter: drop-shadow(0 0 6px rgba(245,196,83,0.45));
+    transition: stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1);
+  }
+  .orbit-wrap .moon-stage{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); margin:0; }
+
+  .orbit-marker{
+    position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px;
+    background:transparent; border:none; padding:0; cursor:pointer;
+    transition: left 1.1s cubic-bezier(.2,.8,.2,1), top 1.1s cubic-bezier(.2,.8,.2,1), transform .2s ease;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .orbit-marker svg{ width:20px; height:20px; display:block; filter: drop-shadow(0 0 4px rgba(124,111,238,0.5)); opacity:0.65; transition: opacity .2s ease, filter .2s ease; }
+  .orbit-marker:hover svg, .orbit-marker:focus-visible svg{ opacity:1; filter: drop-shadow(0 0 8px rgba(245,196,83,0.75)); }
+  .orbit-marker.reached svg{ opacity:0.95; }
+  .orbit-marker.active svg{ opacity:1; filter: drop-shadow(0 0 10px rgba(245,196,83,0.9)); transform:scale(1.15); }
+  .orbit-marker:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; border-radius:50%; }
+
+  .orbit-marker.current{ width:34px; height:34px; margin:-17px 0 0 -17px; cursor:default; pointer-events:none; }
+  .orbit-marker.current svg{ width:30px; height:30px; opacity:1; filter: drop-shadow(0 0 12px var(--gold)) drop-shadow(0 0 22px rgba(245,196,83,0.5)); animation: currentPulse 2.4s ease-in-out infinite; }
+  @keyframes currentPulse{ 50%{ filter: drop-shadow(0 0 18px var(--gold)) drop-shadow(0 0 30px rgba(245,196,83,0.7)); } }
+
+  .orbit-tooltip{
+    position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+    background: var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding: 5px 9px; font-family:'Space Grotesk', sans-serif; font-size:11px; white-space:nowrap;
+    color: var(--text); opacity:0; pointer-events:none; transition:opacity .15s;
+  }
+  .orbit-marker:hover .orbit-tooltip, .orbit-marker:focus-visible .orbit-tooltip{ opacity:1; }
+
+  .orbit-endpoint{
+    position:absolute; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim);
+    transform:translate(-50%,-50%); direction:ltr; pointer-events:none;
+  }
+
+  .orbit-readout{ max-width:340px; margin:16px auto 0; display:flex; align-items:center; justify-content:center; gap:16px; direction: ltr; }
+  .mbtn{ flex:0 0 auto; background:transparent; border:1px solid var(--line); color:var(--text-dim); width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:13px; }
+  .mbtn:hover{ border-color:var(--violet); color:var(--text); }
+  .mbtn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .orbit-readout-text{ font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--gold); letter-spacing:0.03em; min-width:180px; text-align:center; }
+
+  .stats{ display:flex; justify-content:center; gap: 48px; margin-top: 44px; flex-wrap: wrap; }
+  .stat{ text-align:center; }
+  .stat .num{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size: 22px; }
+  .stat .lbl{ font-family:'Space Grotesk', sans-serif; font-size: 11px; letter-spacing:0.16em; text-transform:uppercase; color: var(--text-dim); margin-top:2px; }
+
+  .platforms{ display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top: 60px; }
+  .pill{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); display:flex; align-items:center; gap:8px; transition: box-shadow .2s, transform .2s; }
+  .pill:hover{ box-shadow: 0 0 18px -4px var(--violet); transform: translateY(-2px); }
+  .pill:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .pill .dotc{ width:6px; height:6px; border-radius:50%; }
+
+  .section-head{ font-family:'Space Grotesk', sans-serif; font-size: 12px; letter-spacing:0.2em; text-transform:uppercase; color: var(--text-dim); margin: 90px 0 18px; display:flex; align-items:center; gap:12px; }
+  .section-head::after{ content:''; flex:1; height:1px; background: var(--line); }
+
+  .carousel{ display:flex; gap:16px; overflow-x:auto; padding-bottom: 12px; scroll-snap-type: x mandatory; min-height: 130px; }
+  .carousel::-webkit-scrollbar{ height:6px; }
+  .carousel::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
+  .carousel-msg{ font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--text-dim); padding: 20px 4px; }
+  .vcard{ scroll-snap-align:start; flex: 0 0 240px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow:hidden; cursor:pointer; transition: transform .2s, box-shadow .2s; padding:0; text-align:left; color:inherit; font:inherit; }
+  .vcard:hover{ transform: translateY(-4px); box-shadow: 0 0 24px -6px var(--violet), 0 0 40px -10px var(--gold); }
+  .vcard:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  html[dir="rtl"] .vcard{ text-align:right; }
+  .vcard .thumb{ aspect-ratio: 16/9; background: var(--surface-2) center/cover; }
+  .vcard .info{ padding: 12px 14px; }
+  .vcard .title{ font-family:'Space Grotesk', sans-serif; font-size: 13px; font-weight:500; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .vcard .meta{ font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); margin-top:6px; }
+
+  footer{ text-align:center; margin-top: 100px; font-family:'Space Grotesk', sans-serif; font-size: 12px; color: var(--text-dim); }
+
+  .timeline-wrap{ max-width:840px; margin:0 auto; }
+  .timeline-track{
+    position:relative; height:56px; margin: 30px 6px 16px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .timeline-dot{
+    position:absolute; bottom:-6px; width:10px; height:10px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--violet) 55%, var(--pink));
+    box-shadow: 0 0 9px 2px var(--violet);
+    transform: translateX(-50%);
+    cursor:pointer; transition: transform .2s, box-shadow .2s;
+    border:none; padding:0;
+  }
+  .timeline-dot:hover{ transform: translateX(-50%) scale(1.7); box-shadow: 0 0 16px 4px var(--pink); }
+  .timeline-dot:focus-visible{ transform: translateX(-50%) scale(1.7); box-shadow: 0 0 16px 4px var(--pink); outline:2px solid var(--gold); outline-offset:3px; }
+  .timeline-tooltip{
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    background: var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding: 6px 10px; font-family:'Space Grotesk', sans-serif; font-size:11px;
+    width:170px; text-align:center; line-height:1.35;
+    opacity:0; pointer-events:none; transition:opacity .15s;
+  }
+  .timeline-dot:hover .timeline-tooltip, .timeline-dot:focus-visible .timeline-tooltip{ opacity:1; }
+  .timeline-caption{
+    text-align:center; font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--text-dim);
+  }
+
+  #celebrate{ position: fixed; inset:0; z-index: 50; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at center, #000 0%, #000 30%, rgba(0,0,0,0.95) 60%); opacity:0; pointer-events:none; transition: opacity 1.2s ease; }
+  #celebrate.show{ opacity:1; pointer-events:all; }
+  .cparticle{
+    position:fixed; width:8px; height:8px; border-radius:50%;
+    transform:scale(0); opacity:0; z-index:51;
+    transition: left 1.1s cubic-bezier(.4,0,.2,1), top 1.1s cubic-bezier(.4,0,.2,1),
+                transform 1.1s cubic-bezier(.4,0,.2,1), opacity 1.1s ease;
+    pointer-events:none;
+  }
+  .cparticle.pop{ opacity:1; transform:scale(1.4); }
+  .cparticle.suck{ transform:scale(0); opacity:0; }
+  .memory-montage{ position:absolute; inset:0; overflow:hidden; z-index:1; opacity:0; }
+  .memory-montage img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    opacity:0; filter: saturate(0.85) brightness(0.72) contrast(1.05); will-change: transform, opacity;
+  }
+  .horizon{
+    z-index: 2;
+    width: 220px; height:220px; border-radius:50%;
+    background: conic-gradient(from 0deg, var(--pink), var(--violet), #4d7dff, var(--pink));
+    -webkit-mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    mask: radial-gradient(circle, transparent 56%, #000 60%, #000 70%, transparent 74%);
+    filter: blur(2px);
+    box-shadow: 0 0 70px 12px rgba(124,111,238,0.45);
+    animation: ringSpin 7s linear infinite, ringPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes ringSpin{ to{ transform:rotate(360deg); } }
+  @keyframes ringPulse{ 50%{ filter:blur(3px) brightness(1.25); } }
+  .celebrate-text{ position:relative; z-index:3; text-align:center; opacity:0; transition:opacity 1s ease; }
+  .celebrate-text.show{ opacity:1; }
+  #celebrate .msg{ text-align:center; font-family:'Spectral', serif; font-style:italic; font-size: clamp(22px,4vw,34px); color: var(--gold); padding: 0 20px; }
+  #celebrate .sub{ margin-top:10px; font-family:'Space Grotesk', sans-serif; font-size:13px; color: var(--text-dim); }
+  #celebrate .hint{ position:absolute; bottom:40px; left:50%; transform:translateX(-50%); font-family:'Space Grotesk', sans-serif; font-size:12px; color: var(--text-dim); }
+
+  @keyframes glitchFlicker{
+    0%{ text-shadow:none; transform:translate(0,0); opacity:1; }
+    20%{ text-shadow:-2px 0 var(--pink), 2px 0 var(--violet); transform:translate(-1px,0); opacity:0.85; }
+    40%{ text-shadow:2px 0 var(--violet), -2px 0 #e2483f; transform:translate(1px,0); opacity:1; }
+    60%{ text-shadow:-1px 0 #e2483f, 1px 0 var(--pink); transform:translate(0,0); opacity:0.9; }
+    100%{ text-shadow:none; transform:translate(0,0); opacity:1; }
+  }
+  .glitching{ animation: glitchFlicker 0.3s steps(2,end) 1; }
+
+  @media (prefers-reduced-motion: reduce){
+    .orbit-ring, .horizon, .avatar-orbit .ring{ animation: none; }
+    .moon-fill, .moon-glow{ transition: none; }
+    #nebula::before, #nebula::after{ animation: none; }
+    .glitching{ animation:none; }
+    .orbit-marker.current svg{ animation: none; }
+    .orbit-progress{ transition: none; }
+    .orbit-marker{ transition: none; }
+  }
+  @media (max-width: 560px){
+    .moon-stage{ width: 240px; height:240px; }
+    .orbit-wrap{ width: 320px; height: 320px; }
+    .orbit-endpoint{ font-size:10px; }
+    .stats{ gap: 28px; }
+    #nebula::before{ width:520px; height:520px; }
+    #nebula::after{ width:420px; height:420px; }
+  }
+  @media (min-width:561px) and (max-width: 860px){
+    .orbit-wrap{ width: 400px; height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="meteorIcon" viewBox="0 0 64 64">
+      <radialGradient id="meteorBodyGrad" cx="38%" cy="34%" r="72%">
+        <stop offset="0%" stop-color="#e7ddff"/>
+        <stop offset="38%" stop-color="#9b7dff"/>
+        <stop offset="72%" stop-color="#6b4fff"/>
+        <stop offset="100%" stop-color="#2f1f7a"/>
+      </radialGradient>
+      <radialGradient id="meteorCraterGrad" cx="50%" cy="45%" r="55%">
+        <stop offset="0%" stop-color="#1c1140" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#1c1140" stop-opacity="0"/>
+      </radialGradient>
+      <path fill="url(#meteorBodyGrad)" d="M32.4 3.6c6.2-.4 9.1 4 13.7 6.4 5 2.6 11.8 3 14.2 8.9 2.3 5.7-1.9 11.1-3.4 16.8-1.4 5.2.9 11.7-3.1 15.9-4.1 4.3-11 2.3-16.6 3.6-5.4 1.3-10.1 5.6-15.8 4.2-5.8-1.4-7.2-8-11.2-11.9C6.3 43.9-.6 41 3 34.8c2.4-4.1 8.2-4.6 11.3-8.2 3-3.5 3.2-9 7.2-12.1 3.4-2.7 7.1-10.5 10.9-10.9Z"/>
+      <circle cx="24" cy="22" r="7.5" fill="url(#meteorCraterGrad)"/>
+      <circle cx="41" cy="27" r="5" fill="url(#meteorCraterGrad)"/>
+      <circle cx="30" cy="41" r="6" fill="url(#meteorCraterGrad)"/>
+      <circle cx="45" cy="42" r="3" fill="url(#meteorCraterGrad)"/>
+      <circle cx="16" cy="36" r="2.6" fill="url(#meteorCraterGrad)"/>
+      <g fill="#fff">
+        <path d="M40 20 l1.6 4.2 4.2 1.6 -4.2 1.6 -1.6 4.2 -1.6-4.2 -4.2-1.6 4.2-1.6Z" opacity="0.95"/>
+        <circle cx="20" cy="30" r="1" opacity="0.75"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="nebula" aria-hidden="true"></div>
+<canvas id="sky"></canvas>
+<canvas id="dust"></canvas>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand-group">
+      <div class="avatar-orbit">
+        <div class="ring"></div>
+        <img id="avatarImg" src="" alt="GetTheMoon avatar" style="display:none">
+      </div>
+      <div class="brand">get<span>the</span>moon</div>
+    </div>
+    <div class="top-right">
+      <div class="live-dot" id="liveLabel">live</div>
+      <button class="icon-btn" id="langToggle" title="Language">EN</button>
+      <button class="rem-toggle" id="remToggle" aria-label="Toggle alternate cursor" title="???"></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow" id="txtEyebrow">The subscriber watch</div>
+    <h1 id="txtHeadline">Every orbit brings us <em>closer</em><br>to the Moon.</h1>
+    <div class="sub-line" id="txtSubline">Updating on its own — no refresh needed.</div>
+
+    <div class="orbit-wrap" id="orbitWrap">
+      <svg class="orbit-svg" id="orbitSvg" viewBox="0 0 460 460" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="orbitProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="var(--violet)"/>
+            <stop offset="100%" stop-color="var(--gold)"/>
+          </linearGradient>
+        </defs>
+        <path class="orbit-track" id="orbitTrack" fill="none"></path>
+        <path class="orbit-progress" id="orbitProgress" fill="none"></path>
+      </svg>
+
+      <div class="moon-stage" id="moonStage" role="link" tabindex="0" aria-label="Open GetTheMoon on YouTube">
+        <div class="orbit-ring">
+          <div class="dot d-violet" style="top:50%; left:-3px;"></div>
+          <div class="dot d-gold" style="top:-3px; left:50%;"></div>
+          <div class="dot d-pink" style="bottom:-3px; left:50%;"></div>
+        </div>
+        <div class="moon-glow"></div>
+        <div class="moon">
+          <svg class="moon-surface" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <radialGradient id="moonBase" cx="35%" cy="32%" r="75%">
+                <stop offset="0%" stop-color="#d9d7ec"/>
+                <stop offset="45%" stop-color="#9995b8"/>
+                <stop offset="100%" stop-color="#312f47"/>
+              </radialGradient>
+              <radialGradient id="craterShadow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#000" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="craterRim" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stop-color="#fff" stop-opacity="0"/>
+                <stop offset="85%" stop-color="#fff" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="100" fill="url(#moonBase)"/>
+            <circle cx="68" cy="58" r="22" fill="url(#craterShadow)"/>
+            <circle cx="68" cy="58" r="24" fill="url(#craterRim)"/>
+            <circle cx="130" cy="90" r="14" fill="url(#craterShadow)"/>
+            <circle cx="130" cy="90" r="16" fill="url(#craterRim)"/>
+            <circle cx="95" cy="142" r="18" fill="url(#craterShadow)"/>
+            <circle cx="95" cy="142" r="20" fill="url(#craterRim)"/>
+            <circle cx="147" cy="145" r="9" fill="url(#craterShadow)"/>
+            <circle cx="44" cy="120" r="8" fill="url(#craterShadow)"/>
+            <circle cx="152" cy="45" r="6" fill="url(#craterShadow)"/>
+          </svg>
+          <div class="moon-fill"></div>
+        </div>
+      </div>
+
+      <div class="orbit-endpoint start" id="orbitEndStart" aria-hidden="true">0</div>
+      <div class="orbit-endpoint end" id="orbitEndEnd" aria-hidden="true">100,000</div>
+      <div class="orbit-markers" id="orbitMarkers" role="group" aria-label="Subscriber milestones"></div>
+    </div>
+
+    <div class="count-wrap">
+      <div class="count" id="countNum">🌑</div>
+      <div class="count-label" id="txtSubscribers">Subscribers</div>
+
+      <div class="orbit-readout">
+        <button class="mbtn" id="mbPrev" aria-label="Focus previous milestone">‹</button>
+        <div class="orbit-readout-text" id="orbitReadoutText" aria-live="polite">0 → 1,000 · 0%</div>
+        <button class="mbtn" id="mbNext" aria-label="Focus next milestone">›</button>
+      </div>
+
+      <div class="updated-line" id="updatedLine"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statViews">—</div><div class="lbl" id="txtViews">Total Views</div></div>
+      <div class="stat"><div class="num" id="statVideos">—</div><div class="lbl" id="txtVideos">Videos</div></div>
+      <div class="stat"><div class="num" id="statNext">—</div><div class="lbl" id="txtMilestone">Next Milestone</div></div>
+    </div>
+
+    <div class="platforms" id="platformRow"></div>
+  </section>
+
+  <div class="section-head" id="txtRecentHead">Recent uploads</div>
+  <div class="carousel" id="carouselRecent"><div class="carousel-msg">loading…</div></div>
+
+  <div class="section-head" id="txtPopularHead">Fan favorites</div>
+  <div class="carousel" id="carouselPopular"><div class="carousel-msg">loading…</div></div>
+
+  <div class="section-head" id="txtTimelineHead">Every long upload</div>
+  <div class="timeline-wrap">
+    <div class="timeline-track" id="timelineTrack"></div>
+    <div class="timeline-caption" id="timelineCaption">loading…</div>
+  </div>
+
+  <footer id="txtFooter">made with orbits and a little stardust · getthemoon</footer>
+</div>
+
+<div id="celebrate">
+  <div class="memory-montage" id="memoryMontage" aria-hidden="true"></div>
+  <div class="horizon"></div>
+  <div class="celebrate-text" id="celebrateText">
+    <div class="msg" id="celebrateMsg">We got the Moon.</div>
+    <div class="sub" id="celebrateSub"></div>
+  </div>
+  <div class="hint" id="celebrateHint">click anywhere to close</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+const CONFIG = {
+  goal: 100000,
+  testGoal: null,
+  pollMs: 30000,
+  milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000],
+  // Montage shown during milestone celebrations. All 12 provided pieces, unfiltered
+  // per explicit direction — note images 09/12 are captioned for a past "10K" milestone
+  // specifically, so they'll surface even when celebrating other milestones.
+  celebrationImages: [
+    'assets/celebration/01.png', 'assets/celebration/02.png', 'assets/celebration/03.png',
+    'assets/celebration/04.png', 'assets/celebration/05.png', 'assets/celebration/06.png',
+    'assets/celebration/07.png', 'assets/celebration/08.png', 'assets/celebration/09.png',
+    'assets/celebration/10.png', 'assets/celebration/11.png', 'assets/celebration/12.png'
+  ],
+  // Procedurally generated 12s ambient pad (synth drone + pentatonic bells,
+  // see /gen_audio.py in the deliverable). Deliberately NOT embedded as a
+  // base64 data URI in this config: that would ship ~100KB of audio to
+  // every single visitor on every page load, even though the vast majority
+  // will never trigger a celebration. Referencing it by URL means it's only
+  // fetched the moment triggerCelebration() actually runs — same
+  // lazy-loading principle already used for celebrationImages below.
+  celebrationAudio: { src: 'assets/celebration/ambient.mp3', volume: 0.5 },
+  platforms: [
+    { label: "Main Channel", color: "#ff5ea8", url: "https://www.youtube.com/@GetTheMoon" },
+    { label: "EN Channel",   color: "#7c6fee", url: "https://www.youtube.com/@GetTheMoonus" },
+    { label: "TikTok",       color: "#f5c453", url: "https://www.tiktok.com/@getthemoon923" },
+    { label: "Facebook",     color: "#7c6fee", url: "https://www.facebook.com/profile.php?id=61584399300636" },
+    { label: "Discord",      color: "#f5c453", url: "https://discord.gg/ANdBQrkaCn" },
+  ]
+};
+
+const STRINGS = {
+  en: { dir:"ltr", langLabel:"EN", live:"live", eyebrow:"The subscriber watch",
+    headline:'Every orbit brings us <em>closer</em><br>to the Moon.',
+    subline:"Updating on its own — no refresh needed.",
+    subscribers:"Subscribers", views:"Total Views", videos:"Videos", milestone:"Next Milestone",
+    recentHead:"Recent uploads", popularHead:"Fan favorites", timelineHead:"Every long upload",
+    footer:"made with orbits and a little stardust · getthemoon",
+    celebrateHint:"click anywhere to close", darkSide:"You found the dark side of the Moon.",
+    newStart:"A new orbit begins.",
+    orbitReached:"reached", orbitUpcoming:"upcoming",
+    loading:"loading…", videosUnavailable:"videos unavailable right now" },
+  ar: { dir:"rtl", langLabel:"AR", live:"مباشر", eyebrow:"مراقبة المشتركين",
+    headline:'كل مدار يقربنا <em>أكثر</em><br>من القمر.',
+    subline:"يتحدث نفسه — بدون تحديث الصفحة.",
+    subscribers:"مشترك", views:"مشاهدات", videos:"فيديو", milestone:"الهدف القادم",
+    recentHead:"أحدث الفيديوهات", popularHead:"المفضلة لدى الجمهور", timelineHead:"كل فيديو طويل",
+    footer:"صُنع بمدارات وقليل من غبار النجوم · getthemoon",
+    celebrateHint:"اضغط في أي مكان للإغلاق", darkSide:"لقد وصلت إلى الجانب المظلم من القمر.",
+    newStart:"يبدأ مدار جديد.",
+    orbitReached:"تم الوصول", orbitUpcoming:"قادم",
+    loading:"جارٍ التحميل…", videosUnavailable:"الفيديوهات غير متاحة حاليًا" }
+};
+
+let currentLang = 'en';
+let currentSubs = 0;
+let milestoneIdx = 0;
+// Orbit state must be initialized before applyLang(), because applyLang() calls renderMilestone().
+let orbitMarkerEls = [];
+let orbitCurrentEl = null;
+let orbitTrackLength = 0;
+
+function applyLang(lang, animate){
+  const s = STRINGS[lang];
+  document.getElementById('htmlRoot').setAttribute('dir', s.dir);
+  document.getElementById('htmlRoot').setAttribute('lang', lang);
+  document.getElementById('liveLabel').textContent = s.live;
+  document.getElementById('langToggle').textContent = s.langLabel;
+  document.getElementById('txtEyebrow').textContent = s.eyebrow;
+  document.getElementById('txtHeadline').innerHTML = s.headline;
+  document.getElementById('txtSubline').textContent = s.subline;
+  document.getElementById('txtSubscribers').textContent = s.subscribers;
+  document.getElementById('txtViews').textContent = s.views;
+  document.getElementById('txtVideos').textContent = s.videos;
+  document.getElementById('txtMilestone').textContent = s.milestone;
+  document.getElementById('txtRecentHead').textContent = s.recentHead;
+  document.getElementById('txtPopularHead').textContent = s.popularHead;
+  document.getElementById('txtTimelineHead').textContent = s.timelineHead;
+  document.getElementById('txtFooter').textContent = s.footer;
+  document.getElementById('celebrateHint').textContent = s.celebrateHint;
+  currentLang = lang;
+  renderMilestone();
+  if (typeof layoutOrbit === 'function' && orbitMarkerEls.length) layoutOrbit();
+  if (animate){
+    const wrap = document.querySelector('.wrap');
+    wrap.classList.add('glitching');
+    setTimeout(() => wrap.classList.remove('glitching'), 320);
+  }
+}
+applyLang('en', false);
+document.getElementById('langToggle').addEventListener('click', () => {
+  applyLang(currentLang === 'en' ? 'ar' : 'en', true);
+});
+
+// ---- Orbital milestone track ----
+// Geometry: a 270° arc (gap centered at the bottom, toward the subscriber
+// count) so the "start" and "end" of the journey read left-to-right like a
+// gauge, and the open mouth visually points at the number it's describing.
+const ORBIT_ARC_START = -135; // degrees from top, clockwise
+const ORBIT_ARC_END = 135;
+const ORBIT_ARC_SPAN = ORBIT_ARC_END - ORBIT_ARC_START;
+
+function angleForValue(v, goal){
+  const frac = Math.max(0, Math.min(1, v / goal));
+  return ORBIT_ARC_START + frac * ORBIT_ARC_SPAN;
+}
+function pointOnRing(cx, cy, r, angleDeg){
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function buildArcPath(cx, cy, r, a0, a1){
+  const p0 = pointOnRing(cx, cy, r, a0);
+  const p1 = pointOnRing(cx, cy, r, a1);
+  const largeArc = (a1 - a0) > 180 ? 1 : 0;
+  return `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`;
+}
+
+function buildOrbitMarkers(){
+  const wrap = document.getElementById('orbitMarkers');
+  wrap.innerHTML = '';
+  orbitMarkerEls = CONFIG.milestones.map((value, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'orbit-marker';
+    btn.type = 'button';
+    btn.dataset.index = i;
+    btn.dataset.value = value;
+    btn.innerHTML = `<svg><use href="#meteorIcon"></use></svg><span class="orbit-tooltip"></span>`;
+    btn.addEventListener('click', () => { milestoneIdx = i; renderMilestone(); btn.focus(); });
+    btn.addEventListener('focus', () => { milestoneIdx = i; renderMilestone(); });
+    wrap.appendChild(btn);
+    return btn;
+  });
+
+  const cur = document.createElement('div');
+  cur.className = 'orbit-marker current';
+  cur.setAttribute('aria-hidden', 'true');
+  cur.innerHTML = `<svg><use href="#meteorIcon"></use></svg>`;
+  wrap.appendChild(cur);
+  orbitCurrentEl = cur;
+}
+
+function layoutOrbit(){
+  const wrapEl = document.getElementById('orbitWrap');
+  const svg = document.getElementById('orbitSvg');
+  const size = wrapEl.clientWidth || 460;
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  const cx = size / 2, cy = size / 2;
+  const r = size / 2 - 24;
+  const goal = effectiveGoal();
+
+  const trackPath = document.getElementById('orbitTrack');
+  const progressPath = document.getElementById('orbitProgress');
+  const d = buildArcPath(cx, cy, r, ORBIT_ARC_START, ORBIT_ARC_END);
+  trackPath.setAttribute('d', d);
+  progressPath.setAttribute('d', d);
+  orbitTrackLength = trackPath.getTotalLength();
+  progressPath.style.strokeDasharray = orbitTrackLength;
+  const frac = Math.max(0, Math.min(1, currentSubs / goal));
+  progressPath.style.strokeDashoffset = orbitTrackLength * (1 - frac);
+
+  orbitMarkerEls.forEach((btn, i) => {
+    const value = CONFIG.milestones[i];
+    const angle = angleForValue(value, goal);
+    const p = pointOnRing(cx, cy, r, angle);
+    btn.style.left = p.x + 'px';
+    btn.style.top = p.y + 'px';
+    btn.classList.toggle('reached', currentSubs >= value);
+    btn.classList.toggle('active', i === milestoneIdx);
+    const s = STRINGS[currentLang];
+    const state = currentSubs >= value ? s.orbitReached : s.orbitUpcoming;
+    const label = `${value.toLocaleString()} ${s.subscribers.toLowerCase()} — ${state}`;
+    btn.setAttribute('aria-label', label);
+    btn.querySelector('.orbit-tooltip').textContent = label;
+  });
+
+  const curAngle = angleForValue(currentSubs, goal);
+  const pc = pointOnRing(cx, cy, r, curAngle);
+  orbitCurrentEl.style.left = pc.x + 'px';
+  orbitCurrentEl.style.top = pc.y + 'px';
+
+  const startPt = pointOnRing(cx, cy, r, ORBIT_ARC_START);
+  const endPt = pointOnRing(cx, cy, r, ORBIT_ARC_END);
+  document.getElementById('orbitEndStart').style.left = startPt.x + 'px';
+  document.getElementById('orbitEndStart').style.top = (startPt.y + 14) + 'px';
+  document.getElementById('orbitEndEnd').style.left = endPt.x + 'px';
+  document.getElementById('orbitEndEnd').style.top = (endPt.y + 14) + 'px';
+  document.getElementById('orbitEndEnd').textContent = goal.toLocaleString();
+}
+
+function renderMilestone(){
+  const ms = CONFIG.milestones;
+  const end = ms[milestoneIdx];
+  const start = milestoneIdx === 0 ? 0 : ms[milestoneIdx - 1];
+  const pct = start === end ? 1 : Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
+  document.getElementById('orbitReadoutText').textContent =
+    `${start.toLocaleString()} → ${end.toLocaleString()} · ${(pct * 100).toFixed(1)}%`;
+  orbitMarkerEls.forEach((btn, i) => btn.classList.toggle('active', i === milestoneIdx));
+}
+document.getElementById('mbPrev').addEventListener('click', () => {
+  milestoneIdx = Math.max(0, milestoneIdx - 1);
+  renderMilestone();
+  orbitMarkerEls[milestoneIdx].focus();
+});
+document.getElementById('mbNext').addEventListener('click', () => {
+  milestoneIdx = Math.min(CONFIG.milestones.length - 1, milestoneIdx + 1);
+  renderMilestone();
+  orbitMarkerEls[milestoneIdx].focus();
+});
+
+buildOrbitMarkers();
+layoutOrbit();
+let orbitResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(orbitResizeTimer);
+  orbitResizeTimer = setTimeout(layoutOrbit, 120);
+});
+
+let lastSubs = null;
+let firstLoad = true;
+document.getElementById('countNum').innerHTML = '<span class="count-pulse"></span>';
+
+function effectiveGoal(){ return CONFIG.testGoal || CONFIG.goal; }
+
+// ---- Real 100K celebration gating (once per browser) ----
+// localStorage can throw (private browsing, disabled storage, some in-app
+// browsers) so every access goes through these two guarded helpers rather
+// than touching window.localStorage directly.
+const CELEBRATION_FLAG_KEY = 'gtm_celebrated_100k';
+function safeLocalStorageGet(key){
+  try{ return window.localStorage.getItem(key); }catch(e){ return null; }
+}
+function safeLocalStorageSet(key, value){
+  try{ window.localStorage.setItem(key, value); }catch(e){ /* storage unavailable — celebration just won't persist */ }
+}
+// In-memory fallback for this page session only. Needed because if
+// localStorage is unavailable/blocked, safeLocalStorageSet() silently no-ops
+// and the flag never persists — without this, a browser with storage
+// blocked and subscribers already >= goal would replay the celebration on
+// every poll (every CONFIG.pollMs) instead of just once.
+let realCelebrationTriggeredThisSession = false;
+// Real gate for the actual 100K celebration: fires once ever per browser,
+// whether it's crossed live during a session or the page simply loads
+// already past goal. Once fired it sets the flag so no later poll (every
+// CONFIG.pollMs) or reload replays it.
+function maybeTriggerRealCelebration(subscribers, goal){
+  if (subscribers < goal) return;
+  if (realCelebrationTriggeredThisSession) return;
+  if (safeLocalStorageGet(CELEBRATION_FLAG_KEY) === '1') return;
+  realCelebrationTriggeredThisSession = true;
+  triggerCelebration(goal, undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+  safeLocalStorageSet(CELEBRATION_FLAG_KEY, '1');
+}
+
+function animateNumber(el, from, to, dur = 1200){
+  const start = performance.now();
+  function tick(now){
+    const p = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.floor(from + (to - from) * eased).toLocaleString();
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = to.toLocaleString();
+  }
+  requestAnimationFrame(tick);
+}
+
+function applyStats(data){
+  if (firstLoad){ firstLoad = false; }
+  const goal = effectiveGoal();
+  const fillPct = Math.min(data.subscribers / goal, 1);
+
+  document.querySelector('.moon').style.setProperty('--fill', fillPct.toFixed(4));
+
+  const countEl = document.getElementById('countNum');
+  const from = lastSubs === null ? 0 : lastSubs;
+  animateNumber(countEl, from, data.subscribers);
+
+  document.getElementById('statViews').textContent = Number(data.views).toLocaleString();
+  document.getElementById('statVideos').textContent = data.videos;
+  document.getElementById('statNext').textContent = goal.toLocaleString();
+  document.getElementById('updatedLine').textContent = 'updated ' + new Date(data.updatedAt).toLocaleTimeString();
+
+  currentSubs = data.subscribers;
+  if (lastSubs === null){
+    for (let i = 0; i < CONFIG.milestones.length; i++){
+      if (currentSubs < CONFIG.milestones[i]){ milestoneIdx = i; break; }
+      milestoneIdx = i;
+    }
+  }
+  renderMilestone();
+  if (orbitMarkerEls.length) layoutOrbit();
+
+  if (data.avatar){
+    const avatarImg = document.getElementById('avatarImg');
+    if (avatarImg.src !== data.avatar){
+      avatarImg.src = data.avatar;
+      avatarImg.style.display = 'block';
+    }
+  }
+
+  maybeTriggerRealCelebration(data.subscribers, goal);
+  lastSubs = data.subscribers;
+}
+
+function spawnCelebrationParticles(){
+  const colors = ['#ff5ea8','#7c6fee','#4d7dff','#f5c453'];
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  const n = 18;
+  const particles = [];
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'cparticle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 100 + Math.random() * Math.min(window.innerWidth, window.innerHeight) * 0.38;
+    const x = cx + Math.cos(angle) * dist;
+    const y = cy + Math.sin(angle) * dist;
+    const color = colors[i % colors.length];
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.background = color;
+    p.style.boxShadow = `0 0 10px 2px ${color}`;
+    document.body.appendChild(p);
+    particles.push(p);
+  }
+  requestAnimationFrame(() => {
+    particles.forEach((p, i) => setTimeout(() => p.classList.add('pop'), i * 28));
+  });
+  setTimeout(() => {
+    particles.forEach((p, i) => {
+      setTimeout(() => {
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.classList.remove('pop');
+        p.classList.add('suck');
+      }, i * 18);
+    });
+  }, 900);
+  setTimeout(() => particles.forEach(p => p.remove()), 2200);
+}
+
+function preloadCelebrationAssets(){
+  // Lazy, non-blocking preload — deliberately NOT <link rel="preload"> in <head>,
+  // since that would force high-priority fetch of 12 images on every single
+  // page load even though most visitors will never trigger a celebration.
+  // This warms the browser cache in the background instead.
+  (CONFIG.celebrationImages || []).forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+preloadCelebrationAssets();
+
+function triggerCelebration(milestone, message, images, audio){
+  images = images || [];
+  const el = document.getElementById('celebrate');
+  const textEl = document.getElementById('celebrateText');
+  const montageEl = document.getElementById('memoryMontage');
+  const hintEl = document.getElementById('celebrateHint');
+  const msgEl = document.getElementById('celebrateMsg');
+  const subEl = document.getElementById('celebrateSub');
+
+  textEl.classList.remove('show');
+  hintEl.style.transition = 'none';
+  hintEl.style.opacity = '0';
+  montageEl.innerHTML = '';
+  montageEl.style.opacity = '0';
+  el.classList.add('show');
+
+  const finalMsg = message || `${Number(milestone || effectiveGoal()).toLocaleString()}. We got the Moon.`;
+  // "A new orbit begins" is milestone-specific copy — skip it for non-milestone triggers (e.g. easter eggs).
+  const finalSub = milestone ? STRINGS[currentLang].newStart : '';
+
+  function revealText(){
+    msgEl.textContent = finalMsg;
+    subEl.textContent = finalSub;
+    textEl.classList.add('show');
+    hintEl.style.transition = 'opacity 1s ease';
+    hintEl.style.opacity = '1';
+  }
+
+  if (reduceMotion){
+    // Reduced motion: no montage, no timed choreography — a calm, immediate reveal.
+    spawnCelebrationParticles();
+    revealText();
+    return;
+  }
+
+  if (typeof gsap === 'undefined'){
+    // GSAP CDN unreachable/blocked — degrade to the original fixed-delay reveal
+    // rather than breaking the celebration entirely.
+    spawnCelebrationParticles();
+    setTimeout(revealText, 2100);
+    return;
+  }
+
+  if (audio && audio.src){
+    try{
+      const a = new Audio(audio.src);
+      a.volume = audio.volume != null ? audio.volume : 0.6;
+      a.play().catch(() => {}); // autoplay may be blocked without a prior user gesture — fail silently
+    }catch(e){}
+  }
+
+  const tl = gsap.timeline();
+
+  if (images.length){
+    montageEl.style.opacity = '1';
+    const perImage = images.length > 8 ? 0.42 : 0.6;
+    const step = perImage * 0.7;
+    images.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.alt = '';
+      // Defensive: a missing/404'd celebration image should just be invisible,
+      // not a broken-image icon, and must not stop the GSAP timeline — the
+      // tween below animates the <img> element itself, not its load state.
+      img.onerror = () => { img.style.display = 'none'; };
+      img.src = src;
+      montageEl.appendChild(img);
+      const at = i * step;
+      tl.fromTo(img, { opacity: 0, scale: 1 },
+        { opacity: 1, scale: 1.045, duration: perImage * 0.65, ease: 'sine.inOut' }, at)
+        .to(img, { opacity: 0, duration: perImage * 0.35, ease: 'sine.in' }, at + perImage * 0.65);
+    });
+    tl.to(montageEl, { opacity: 0, duration: 0.5, ease: 'sine.in' }, '>-0.1');
+  }
+
+  // Black hole suck — reuses the existing particle implosion untouched, just
+  // sequenced into the timeline instead of firing on its own fixed clock.
+  tl.call(() => { spawnCelebrationParticles(); }, null, images.length ? '>' : 0);
+  tl.call(revealText, null, '+=2.0');
+}
+
+function openMainChannel(){
+  window.open('https://www.youtube.com/@GetTheMoon', '_blank', 'noopener');
+}
+document.getElementById('moonStage').addEventListener('click', openMainChannel);
+document.getElementById('moonStage').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMainChannel(); }
+});
+
+document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape'){ document.getElementById('celebrate').classList.remove('show'); }
+});
+
+let avatarClicks = 0;
+document.getElementById('avatarImg').addEventListener('click', (e) => {
+  e.stopPropagation();
+  avatarClicks++;
+  if (avatarClicks >= 5){ avatarClicks = 0; triggerCelebration(null, STRINGS[currentLang].darkSide, [], null); }
+});
+
+async function fetchStats(){
+  try{
+    const res = await fetch('/api/stats');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    applyStats(data);
+  }catch(err){
+    console.error(err);
+  }
+}
+fetchStats();
+setInterval(fetchStats, CONFIG.pollMs);
+
+// ---- Temporary public test hook: ?celebrate=1 ----
+// For manual QA only. Calls triggerCelebration() directly, bypassing
+// maybeTriggerRealCelebration() entirely, so it NEVER reads or writes
+// CELEBRATION_FLAG_KEY ("gtm_celebrated_100k") — the real 100K flag stays
+// untouched no matter how many times this is loaded. Remove this block
+// once celebration QA is done; it is not meant to ship long-term.
+(function initCelebrateTestHook(){
+  let forceTest = false;
+  try{
+    forceTest = new URLSearchParams(window.location.search).get('celebrate') === '1';
+  }catch(e){ forceTest = false; }
+  if (!forceTest) return;
+  // Small delay so this fires after initial page setup (orbit markers,
+  // first stats/videos fetch kicked off) rather than racing DOM/GSAP setup.
+  setTimeout(() => {
+    triggerCelebration(effectiveGoal(), undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+  }, 500);
+})();
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = String(str == null ? '' : str);
+  return div.innerHTML;
+}
+
+function renderCarousel(containerId, videos){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  if (!videos || !videos.length){
+    el.innerHTML = `<div class="carousel-msg">${STRINGS[currentLang].videosUnavailable}</div>`;
+    return;
+  }
+  videos.forEach(v => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'vcard';
+    card.setAttribute('aria-label', `${v.title} — ${Number(v.views).toLocaleString()} views. Opens on YouTube.`);
+    card.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank', 'noopener');
+    card.innerHTML = `
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/${encodeURIComponent(v.id)}/mqdefault.jpg')" role="img" aria-hidden="true"></div>
+      <div class="info">
+        <div class="title">${escapeHtml(v.title)}</div>
+        <div class="meta">${Number(v.views).toLocaleString()} views</div>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+function renderTimeline(videos){
+  const track = document.getElementById('timelineTrack');
+  const caption = document.getElementById('timelineCaption');
+  track.innerHTML = '';
+  if (!videos || !videos.length){
+    caption.textContent = STRINGS[currentLang].videosUnavailable;
+    return;
+  }
+  const first = new Date(videos[0].publishedAt).getTime();
+  const last = new Date(videos[videos.length - 1].publishedAt).getTime();
+  const span = Math.max(1, last - first);
+  videos.forEach(v => {
+    const pct = ((new Date(v.publishedAt).getTime() - first) / span) * 100;
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'timeline-dot';
+    dot.style.left = pct + '%';
+    dot.setAttribute('aria-label', `${v.title}. Opens on YouTube.`);
+    dot.onclick = () => window.open(`https://www.youtube.com/watch?v=${v.id}`, '_blank', 'noopener');
+    dot.innerHTML = `<div class="timeline-tooltip">${escapeHtml(v.title)}</div>`;
+    track.appendChild(dot);
+  });
+  const fmt = d => new Date(d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  caption.textContent = `${videos.length} long videos · ${fmt(videos[0].publishedAt)} to ${fmt(videos[videos.length - 1].publishedAt)} · hover or tab through to explore`;
+}
+
+async function fetchVideos(){
+  try{
+    const res = await fetch('/api/videos');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    renderCarousel('carouselRecent', data.recent);
+    renderCarousel('carouselPopular', data.popular);
+    renderTimeline(data.timeline);
+  }catch(err){
+    console.error(err);
+    renderCarousel('carouselRecent', []);
+    renderCarousel('carouselPopular', []);
+    renderTimeline([]);
+  }
+}
+fetchVideos();
+setInterval(fetchVideos, 10 * 60 * 1000);
+
+const platformRow = document.getElementById('platformRow');
+CONFIG.platforms.forEach(p => {
+  const a = document.createElement('a');
+  a.className = 'pill'; a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
+  a.innerHTML = `<span class="dotc" style="background:${p.color}"></span><span>${p.label}</span>`;
+  platformRow.appendChild(a);
+});
+
+let remClicks = 0;
+document.getElementById('remToggle').addEventListener('click', () => {
+  remClicks++;
+  if (remClicks >= 3){ document.body.classList.toggle('rem-cursor'); remClicks = 0; }
+});
+
+setInterval(() => {
+  const brand = document.querySelector('.brand');
+  brand.classList.add('glitching');
+  setTimeout(() => brand.classList.remove('glitching'), 320);
+}, 4000 + Math.random() * 2000);
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const canvas = document.getElementById('sky');
+const ctx = canvas.getContext('2d');
+let w, h, stars, meteors;
+function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+function makeStars(n){
+  return Array.from({length:n}, () => ({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.3+0.2, a: Math.random()*0.6+0.2, tw: Math.random()*0.02+0.005 }));
+}
+function makeMeteor(){
+  return { x: Math.random()*w*1.4 - w*0.2, y: -20, len: Math.random()*80+60, speed: Math.random()*6+4, angle: Math.PI/4 + (Math.random()*0.15 - 0.075) };
+}
+stars = makeStars(110);
+meteors = [];
+if (!reduceMotion){ setInterval(() => { meteors.push(makeMeteor()); }, 25000 + Math.random()*8000); }
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  stars.forEach(s => {
+    s.a += reduceMotion ? 0 : (Math.sin(Date.now()*s.tw) * 0.002);
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(240,238,252,${Math.max(0.15, Math.min(0.9,s.a))})`; ctx.fill();
+  });
+  meteors.forEach(m => {
+    m.x += Math.cos(m.angle)*m.speed; m.y += Math.sin(m.angle)*m.speed;
+    const tailX = m.x - Math.cos(m.angle)*m.len; const tailY = m.y - Math.sin(m.angle)*m.len;
+    const grad = ctx.createLinearGradient(m.x,m.y,tailX,tailY);
+    grad.addColorStop(0, 'rgba(255,255,255,0.9)'); grad.addColorStop(1, 'rgba(124,111,238,0)');
+    ctx.strokeStyle = grad; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(tailX,tailY); ctx.stroke();
+  });
+  meteors = meteors.filter(m => m.y < h + 100 && m.x < w + 200);
+  requestAnimationFrame(draw);
+}
+draw();
+
+const dustCanvas = document.getElementById('dust');
+const dctx = dustCanvas.getContext('2d');
+let dw, dh, dust;
+function resizeDust(){ dw = dustCanvas.width = window.innerWidth; dh = dustCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeDust);
+resizeDust();
+function makeDust(n){
+  return Array.from({length:n}, () => ({ x: Math.random()*dw, y: Math.random()*dh, vx: (Math.random()-0.5)*0.05, vy: -(Math.random()*0.08+0.02), r: Math.random()*1.2+0.4, a: Math.random()*0.3+0.05 }));
+}
+dust = reduceMotion ? [] : makeDust(36);
+function drawDust(){
+  dctx.clearRect(0,0,dw,dh);
+  dust.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.y < -10){ p.y = dh + 10; p.x = Math.random()*dw; }
+    dctx.beginPath(); dctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    dctx.fillStyle = `rgba(245,196,83,${p.a})`; dctx.fill();
+  });
+  requestAnimationFrame(drawDust);
+}
+drawDust();
+</script>
+</body>
+</html>
