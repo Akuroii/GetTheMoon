@@ -703,13 +703,21 @@ function safeLocalStorageGet(key){
 function safeLocalStorageSet(key, value){
   try{ window.localStorage.setItem(key, value); }catch(e){ /* storage unavailable — celebration just won't persist */ }
 }
+// In-memory fallback for this page session only. Needed because if
+// localStorage is unavailable/blocked, safeLocalStorageSet() silently no-ops
+// and the flag never persists — without this, a browser with storage
+// blocked and subscribers already >= goal would replay the celebration on
+// every poll (every CONFIG.pollMs) instead of just once.
+let realCelebrationTriggeredThisSession = false;
 // Real gate for the actual 100K celebration: fires once ever per browser,
 // whether it's crossed live during a session or the page simply loads
 // already past goal. Once fired it sets the flag so no later poll (every
 // CONFIG.pollMs) or reload replays it.
 function maybeTriggerRealCelebration(subscribers, goal){
   if (subscribers < goal) return;
+  if (realCelebrationTriggeredThisSession) return;
   if (safeLocalStorageGet(CELEBRATION_FLAG_KEY) === '1') return;
+  realCelebrationTriggeredThisSession = true;
   triggerCelebration(goal, undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
   safeLocalStorageSet(CELEBRATION_FLAG_KEY, '1');
 }

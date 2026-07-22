@@ -17,6 +17,20 @@
   (EN/AR) all functioning per SESSION_NOTES.md.
 
 ## Checkpoint 3 — Celebration reliability (this session)
+
+**Follow-up hardening patch (same checkpoint, post-external-verification):**
+Added `realCelebrationTriggeredThisSession` (in-memory `let`, false by
+default) to `maybeTriggerRealCelebration()`. Without it, a browser with
+localStorage blocked/unavailable and subscribers already >= goal would
+replay the celebration on every poll (`CONFIG.pollMs`), since
+`safeLocalStorageSet()` silently no-ops when storage isn't writable. Now the
+function checks the in-memory flag first, then the persisted flag; the
+in-memory flag is set immediately before `triggerCelebration()` is called,
+and `safeLocalStorageSet()` is still attempted afterward so the flag
+persists across reloads whenever storage *is* available. Nothing else in
+this function changed. `?celebrate=1` still bypasses this function entirely
+and does not touch either flag.
+
 **Touched:** `index.html` only. Nothing else in the repo was modified.
 
 Changes:
