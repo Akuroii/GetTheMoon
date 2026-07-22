@@ -1,107 +1,123 @@
 # PROJECT_STATE — GetTheMoon
 
-> No PROJECT_STATE.md existed in the files provided for this session, so this
-> is a fresh file starting from Checkpoint 3. Prior checkpoint history below
-> is reconstructed from SESSION_NOTES.md and README_DEPLOY.md that were
-> supplied alongside the code — treat anything before "Checkpoint 3" as
-> best-effort history, not a verified log.
+## Known-working, as of Checkpoint 3B
+- Homepage loads and renders (Checkpoint 1 TDZ fix intact).
+- `/api/stats`, `/api/videos`, `/api/og` all return real JSON/images (untouched
+  this session — see "Not touched" below).
+- Orbital milestone track, carousels, timeline, i18n (EN/AR), reduced-motion
+  handling, and the CP3 celebration-reliability gating all function per prior
+  checkpoints.
+- Default 100K celebration (`triggerCelebration()`), `?celebrate=1` QA path,
+  and the real `gtm_celebrated_100k` gate are **unchanged and still the only
+  thing that runs in production** — see Checkpoint 3B scope below.
 
-## Known-working, as of Checkpoint 3
-- Homepage loads and renders (Checkpoint 1 fixed a TDZ crash in
-  `orbitMarkerEls`/`orbitCurrentEl`/`orbitTrackLength`).
-- `/api/stats` returns real JSON.
-- `/api/videos` returns real JSON.
-- `/api/og` returns a working OG image (NaN-at-100K bug and missing-avatar
-  guard already fixed per SESSION_NOTES.md).
-- Orbital milestone track, carousels, timeline, celebration overlay, i18n
-  (EN/AR) all functioning per SESSION_NOTES.md.
-
-## Checkpoint 3 — Celebration reliability (this session)
-
-**Follow-up hardening patch (same checkpoint, post-external-verification):**
-Added `realCelebrationTriggeredThisSession` (in-memory `let`, false by
-default) to `maybeTriggerRealCelebration()`. Without it, a browser with
-localStorage blocked/unavailable and subscribers already >= goal would
-replay the celebration on every poll (`CONFIG.pollMs`), since
-`safeLocalStorageSet()` silently no-ops when storage isn't writable. Now the
-function checks the in-memory flag first, then the persisted flag; the
-in-memory flag is set immediately before `triggerCelebration()` is called,
-and `safeLocalStorageSet()` is still attempted afterward so the flag
-persists across reloads whenever storage *is* available. Nothing else in
-this function changed. `?celebrate=1` still bypasses this function entirely
-and does not touch either flag.
+## Checkpoint 3B — Celebration visual v2 (code-only prototype, test-flag only)
 
 **Touched:** `index.html` only. Nothing else in the repo was modified.
 
-Changes:
-1. **Real 100K gating, now actually persistent.** Previously the "crossing"
-   check (`lastSubs !== null && lastSubs < goal && data.subscribers >= goal`)
-   only worked within a single page session — `lastSubs` resets to `null` on
-   every reload, so it could never fire if a visitor loaded the page after
-   the channel had already crossed 100K, and it offered no cross-session
-   dedupe. Replaced with `maybeTriggerRealCelebration(subscribers, goal)`,
-   which checks `localStorage['gtm_celebrated_100k']` and only fires once
-   ever per browser (live crossing during a session, or first load already
-   past goal — either way, fires once, then never again). All localStorage
-   access goes through `safeLocalStorageGet`/`safeLocalStorageSet`, which
-   swallow exceptions (private browsing, disabled storage, some in-app
-   browsers) so a storage failure degrades to "celebration doesn't persist
-   across reloads," never to a crash.
-2. **`?celebrate=1` test hook.** Visiting `/?celebrate=1` calls
-   `triggerCelebration()` directly after a short delay, for manual QA. It
-   never touches `maybeTriggerRealCelebration()` or the
-   `gtm_celebrated_100k` flag — verified by reading the code path, the test
-   hook and the real gate are entirely separate functions with no shared
-   state beyond the celebration UI itself.
-3. **Defensive image handling in the montage.** Each celebration `<img>`
-   now gets `onerror` before its `src` is set, so a missing/404'd file just
-   hides that frame instead of showing a broken-image icon. The GSAP tween
-   was already safe here (it animates the element, not a load event) but
-   this closes the one remaining visible failure mode.
-4. Both new declarations (`CELEBRATION_FLAG_KEY` and the helper functions)
-   are placed as **hoisted `function` declarations**, not `const`/`let`
-   assigned later, specifically to avoid the class of bug that caused the
-   Checkpoint 1 outage (a value referenced before its `let` initialization
-   in execution order).
+**Goal:** prototype a new "Journey → Black Hole → Darkness → Moon → 100K"
+celebration sequence using the real 12 `assets/celebration/*.png` images as
+live `<img>` elements, reachable only behind `?celebrate=1&visual=v2`, without
+touching the current default celebration in any way.
 
-**Explicit re-verification (per instruction #7):**
-- `orbitMarkerEls`, `orbitCurrentEl`, `orbitTrackLength` — exactly one `let`
-  declaration each, still at their original location above `applyLang('en',
-  false)`. Confirmed via `grep -n "let orbitMarkerEls\|let orbitCurrentEl\|
-  let orbitTrackLength" index.html` → one hit each.
-- New top-level bindings added this session: `CELEBRATION_FLAG_KEY` (const),
-  `safeLocalStorageGet`/`safeLocalStorageSet`/`maybeTriggerRealCelebration`
-  (function declarations, hoisted — order-independent), and the
-  `initCelebrateTestHook` IIFE (self-contained, no external `let`/`const`
-  read before assignment). None of these are referenced anywhere in the
-  script before their own definition point.
+### What was added
+1. **`triggerCelebrationV2(milestone, images, audio)`** — a new, separate
+   function (not a rewrite of `triggerCelebration()`). Sequence, driven by a
+   single GSAP timeline:
+   - 0.0–0.5s: CSS-built "event horizon" (`.v2-event-horizon`, radial
+     gradient + glow, no new image assets) fades/scales in.
+   - 0.5–3.2s: the real `CONFIG.celebrationImages` are rendered as actual
+     `<img>` tags arranged in a circle around the horizon and faded in.
+   - 3.2–5.8s: each image is GSAP-tweened toward the center (`left/top: 50%`,
+     `scale: 0.05`, `opacity: 0`, a light 2px blur), staggered slightly per
+     image.
+   - 5.8–6.6s: a full-bleed `.v2-darkness` overlay fades in as the horizon
+     fades out.
+   - 6.6–8.0s: a **clone of the site's existing `.moon` element** (via
+     `buildV2Moon()`, `cloneNode(true)` off `.moon-stage .moon`, carrying over
+     its live `--fill` value) fades in — no new moon asset was created.
+   - 8.0s+: reuses the *existing* `#celebrateText` / `#celebrateMsg` /
+     `#celebrateSub` / `#celebrateHint` elements and copy ("We got the Moon." /
+     "A new orbit begins.") — same `revealText()` pattern as v1.
+2. **`buildV2Moon()`** — small helper, clones the live moon node rather than
+   introducing a new SVG/asset.
+3. **New, additive-only CSS** (`#celebrateV2Stage`, `.v2-event-horizon`,
+   `.v2-horizon-static`, `.v2-memory-img`, `.v2-darkness`, `.v2-moon-reveal`,
+   plus a `max-width:560px` block for them) using only existing design tokens
+   (`--violet`, `--pink`, `--gold`, `--line`). No new colors introduced.
+4. **Test hook extended, not replaced.** `initCelebrateTestHook()` now also
+   reads `?visual=v2` from the query string. `?celebrate=1` alone still calls
+   `triggerCelebration()` exactly as before; `?celebrate=1&visual=v2` calls
+   `triggerCelebrationV2()` instead. Neither path touches
+   `maybeTriggerRealCelebration()` or `CELEBRATION_FLAG_KEY`
+   (`gtm_celebrated_100k`) — verified by reading the code path (see Checks
+   below).
+5. **Close-handler cleanup (the one bit of "existing code" this touched).**
+   The `#celebrate` click handler and the document `Escape` keydown handler
+   now also call `el._v2Cleanup()` if it's set. `_v2Cleanup` is only ever
+   assigned inside `triggerCelebrationV2()`, so this is a no-op for the
+   default v1 celebration and for `?celebrate=1` without `&visual=v2`. Needed
+   because v2 builds its own DOM (`#celebrateV2Stage`) and, without this, a
+   mid-timeline close would leave orphaned elements and a running GSAP
+   timeline behind.
+6. **Legacy element hide/restore.** While v2 runs, the always-present
+   `#memoryMontage` and `.horizon` elements (used by v1) are set to
+   `display:none` so they don't visually double up with the v2 stage, and are
+   restored (`display:''`) by `cleanupV2()` on close or on fallback.
+7. **Graceful degradation, three layers:**
+   - `prefers-reduced-motion`: no spiral/pull motion at all — static event
+     horizon + moon clone + immediate text reveal.
+   - GSAP CDN unavailable (`typeof gsap === 'undefined'`): falls back to the
+     existing, known-working `triggerCelebration()`.
+   - Any other runtime error inside `triggerCelebrationV2()`: caught, legacy
+     elements restored, falls back to `triggerCelebration()`. Never leaves a
+     broken/half-built overlay visible.
+   - Each `<img>` gets `onerror` (hide element) before `src` is set, same
+     defensive pattern as v1 — a missing celebration PNG doesn't produce a
+     broken-image icon or stall the GSAP timeline.
+
+### Explicit re-verification (per this checkpoint's required checks)
 - `node --check` passed on the extracted inline `<script>` block.
+- `grep -n "let orbitMarkerEls\|let orbitCurrentEl\|let orbitTrackLength"` →
+  exactly one hit each, unchanged from Checkpoint 3.
+- `?celebrate=1` (no `visual` param) still resolves to `triggerCelebration()`
+  — confirmed by reading `initCelebrateTestHook()`.
+- `?celebrate=1&visual=v2` resolves to `triggerCelebrationV2()` — confirmed
+  by reading the same function; this is the only code path that can reach
+  `triggerCelebrationV2()`.
+- `maybeTriggerRealCelebration()` body is unchanged from Checkpoint 3 and
+  still calls only `triggerCelebration(...)` — the real 100K trigger does
+  **not** use v2 yet, as instructed.
+- `CELEBRATION_FLAG_KEY` / `gtm_celebrated_100k` is read/written only inside
+  `safeLocalStorageGet`/`safeLocalStorageSet`/`maybeTriggerRealCelebration`
+  — grepped, no new read/write sites were added for v2 or the test hook.
+- No API keys, tokens, or secrets appear anywhere in `index.html` (grepped
+  for `api_key`/`apikey`/`secret`/`token`, only comment text matched).
+- `triggerCelebration()`'s own function body was diffed against its prior
+  version and is byte-for-byte identical.
 
 **Not touched, as instructed:** `api/og.js`, `api/videos.js`, `api/stats.js`,
-Gravity Rail / orbital ring visuals, homepage layout, milestone math,
-`vercel.json`, `package.json`.
+homepage layout, Gravity Rail / orbital ring visuals, milestone math,
+`vercel.json`, `package.json`. No legend was added. The default/current
+celebration was not removed or altered.
 
-## Known gap in this deliverable
-This session had no access to the actual binary assets (`assets/celebration/
-*.png`, `assets/celebration/ambient.mp3`, `assets/meteor-32.png`,
-`assets/meteor-180.png`, `assets/meteor-cursor.png`) — only their filenames
-as referenced in code. The ZIP for this checkpoint therefore ships
-`index.html` (patched) plus the other text-based files exactly as provided
-in the source documents. **Do not deploy this ZIP over your existing
-`assets/` folder** — merge only `index.html` into your existing project, the
-same way Checkpoint 1 was deployed.
-
-## Still pending / flagged for follow-up (not part of this checkpoint's scope)
-- Verify the Spectral font URL in `api/og.js` at deploy time (still open
-  per SESSION_NOTES.md — not re-verified this session since OG was
-  explicitly out of scope).
-- `celebrationImages` still includes `09.png`/`12.png`, captioned for a past
-  "10K" milestone, unfiltered — will surface during the real 100K
-  celebration too. Worth a deliberate check before the real milestone hits.
-- There is a stray root-level `videos.js` duplicating `api/videos.js`
-  byte-for-byte. It isn't matched by `vercel.json`'s `api/**/*.js` function
-  pattern, so it shouldn't currently execute as a serverless function — but
-  a duplicate of API logic sitting outside `api/` is worth a deliberate
-  decision (delete it, or confirm it's intentionally there for something)
-  rather than leaving it unexplained. Flagging only — out of scope to touch
-  this session per "do not touch APIs."
+### Known limitations of this prototype (flagging for follow-up, not fixed now)
+- **Performance risk:** animating 12 full-resolution PNGs with `filter: blur()`
+  simultaneously during the pull-in phase is the most GPU-expensive part of
+  this sequence. It's usable for QA but I'd want a real device test (mid-range
+  Android) before this becomes the default. A cheap follow-up would be a
+  smaller (~200px-wide) thumbnail variant of the 12 images used only for this
+  effect.
+- The v2 sequence is entirely timeline-scripted (fixed second offsets like
+  `3.2`, `5.8`, `6.6`, `8.0`); it does not yet adapt its pacing to
+  `images.length` beyond the initial stagger — fine for the fixed 12-image set
+  today, would need revisiting if the celebration asset count ever changes.
+- `triggerCelebrationV2()` is intentionally not wired into
+  `maybeTriggerRealCelebration()` — per this checkpoint's explicit scope. That
+  wiring, plus a decision on whether v2 fully replaces v1 or becomes a config
+  toggle, is a future checkpoint's call, not this one's.
+- Still open from prior checkpoints (unchanged this session): verify the
+  Spectral font URL in `api/og.js` at deploy time; `celebrationImages` still
+  includes `09.png`/`12.png` captioned for a past "10K" milestone; the stray
+  root-level `videos.js` duplicate of `api/videos.js` is still unexplained and
+  still out of scope to touch.

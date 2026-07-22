@@ -278,6 +278,37 @@
   #celebrate .sub{ margin-top:10px; font-family:'Space Grotesk', sans-serif; font-size:13px; color: var(--text-dim); }
   #celebrate .hint{ position:absolute; bottom:40px; left:50%; transform:translateX(-50%); font-family:'Space Grotesk', sans-serif; font-size:12px; color: var(--text-dim); }
 
+  /* ---- CP3B: celebration visual v2 (test-flag only, ?celebrate=1&visual=v2) ----
+     Isolated stage layer so the default (v1) celebration markup above is
+     never touched. Reuses the same --violet/--pink/--gold/--line tokens. */
+  #celebrateV2Stage{ position:absolute; inset:0; z-index:1; display:none; }
+  .v2-event-horizon{
+    position:absolute; top:50%; left:50%; width:180px; height:180px; margin:-90px 0 0 -90px;
+    border-radius:50%;
+    background: radial-gradient(circle at 50% 50%, #000 0%, #05030a 38%, rgba(107,79,255,0.55) 62%, rgba(255,94,168,0.35) 78%, transparent 88%);
+    box-shadow: 0 0 90px 20px rgba(124,111,238,0.5), 0 0 160px 40px rgba(255,94,168,0.25);
+    filter: blur(1px);
+  }
+  .v2-horizon-static{
+    position:absolute; top:50%; left:50%; width:180px; height:180px; margin:-90px 0 0 -90px;
+    border-radius:50%;
+    background: radial-gradient(circle, #000 0%, rgba(107,79,255,0.5) 60%, transparent 85%);
+    box-shadow: 0 0 80px 16px rgba(124,111,238,0.4);
+  }
+  .v2-memory-img{
+    position:absolute; width:96px; height:64px; margin:-32px 0 0 -48px;
+    object-fit:cover; border-radius:8px; border:1px solid rgba(240,238,252,0.18);
+    box-shadow: 0 0 24px -4px rgba(124,111,238,0.55);
+    will-change: transform, opacity, filter;
+  }
+  .v2-darkness{ position:absolute; inset:0; background:#000; opacity:0; }
+  .v2-moon-reveal{ position:absolute; inset:auto; top:50%; left:50%; width:200px; height:200px; margin:-100px 0 0 -100px; }
+  @media (max-width: 560px){
+    .v2-event-horizon, .v2-horizon-static{ width:130px; height:130px; margin:-65px 0 0 -65px; }
+    .v2-memory-img{ width:70px; height:48px; margin:-24px 0 0 -35px; }
+    .v2-moon-reveal{ width:150px; height:150px; margin:-75px 0 0 -75px; }
+  }
+
   @keyframes glitchFlicker{
     0%{ text-shadow:none; transform:translate(0,0); opacity:1; }
     20%{ text-shadow:-2px 0 var(--pink), 2px 0 var(--violet); transform:translate(-1px,0); opacity:0.85; }
@@ -900,6 +931,182 @@ function triggerCelebration(milestone, message, images, audio){
   tl.call(revealText, null, '+=2.0');
 }
 
+// ---- CP3B: celebration visual v2 (code-only prototype, test-flag only) ----
+// Reachable ONLY via ?celebrate=1&visual=v2 (see initCelebrateTestHook below).
+// Deliberately a separate function from triggerCelebration() rather than a
+// rewrite of it: the real 100K gate (maybeTriggerRealCelebration) and the
+// default ?celebrate=1 QA path both keep calling triggerCelebration()
+// unchanged. This function reuses the real 12 assets in CONFIG.celebrationImages
+// as live <img> elements and a clone of the site's existing .moon element —
+// no new AI-generated assets are introduced.
+//
+// Story: event horizon (0–0.5s) -> real images arranged around it (0.5–3.2s)
+// -> images pulled inward via GSAP (3.2–5.8s) -> darkness collapse
+// (5.8–6.6s) -> moon reveal (6.6–8.0s) -> existing final text (8.0s+).
+function buildV2Moon(){
+  // Clone the site's real, already-live moon element (with its current
+  // --fill value) rather than fabricating a new moon graphic.
+  const src = document.querySelector('.moon-stage .moon');
+  if (!src) return null;
+  const clone = src.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.className = 'moon v2-moon-reveal';
+  const fill = src.style.getPropertyValue('--fill');
+  clone.style.setProperty('--fill', fill || '1');
+  return clone;
+}
+
+function triggerCelebrationV2(milestone, images, audio){
+  images = images || [];
+  const el = document.getElementById('celebrate');
+  const textEl = document.getElementById('celebrateText');
+  const hintEl = document.getElementById('celebrateHint');
+  const msgEl = document.getElementById('celebrateMsg');
+  const subEl = document.getElementById('celebrateSub');
+  const legacyMontage = document.getElementById('memoryMontage');
+  const legacyHorizon = document.querySelector('#celebrate .horizon');
+
+  try{
+    // Hide the v1-only decorative elements (already permanently in the DOM
+    // inside #celebrate) while v2 runs, so they don't visually double up
+    // with the v2 stage. Restored by cleanupV2() on close.
+    if (legacyMontage) legacyMontage.style.display = 'none';
+    if (legacyHorizon) legacyHorizon.style.display = 'none';
+
+    textEl.classList.remove('show');
+    hintEl.style.transition = 'none';
+    hintEl.style.opacity = '0';
+    el.classList.add('show');
+
+    let stage = document.getElementById('celebrateV2Stage');
+    if (!stage){
+      stage = document.createElement('div');
+      stage.id = 'celebrateV2Stage';
+      stage.setAttribute('aria-hidden', 'true');
+      el.insertBefore(stage, textEl);
+    }
+    stage.innerHTML = '';
+    stage.style.display = 'block';
+
+    const finalMsg = `${Number(milestone || effectiveGoal()).toLocaleString()}. We got the Moon.`;
+    const finalSub = STRINGS[currentLang].newStart;
+
+    function revealText(){
+      msgEl.textContent = finalMsg;
+      subEl.textContent = finalSub;
+      textEl.classList.add('show');
+      hintEl.style.transition = 'opacity 1s ease';
+      hintEl.style.opacity = '1';
+    }
+
+    function cleanupV2(){
+      stage.style.display = 'none';
+      stage.innerHTML = '';
+      if (legacyMontage) legacyMontage.style.display = '';
+      if (legacyHorizon) legacyHorizon.style.display = '';
+      el._v2Cleanup = null;
+    }
+    // Picked up by the existing click/Escape close handlers below so a
+    // mid-timeline close doesn't leave orphaned v2 elements or a running
+    // GSAP timeline behind.
+    el._v2Cleanup = cleanupV2;
+
+    if (reduceMotion){
+      // Reduced motion: no spiral/pull motion at all — calm event horizon,
+      // moon, and text with no timed choreography.
+      const horizon = document.createElement('div');
+      horizon.className = 'v2-horizon-static';
+      stage.appendChild(horizon);
+      const moonClone = buildV2Moon();
+      if (moonClone) stage.appendChild(moonClone);
+      revealText();
+      return;
+    }
+
+    if (typeof gsap === 'undefined'){
+      // GSAP CDN unreachable — fall back to the known-working v1 celebration
+      // rather than shipping a broken/unanimated v2 sequence.
+      cleanupV2();
+      triggerCelebration(milestone, undefined, images, audio);
+      return;
+    }
+
+    if (audio && audio.src){
+      try{
+        const a = new Audio(audio.src);
+        a.volume = audio.volume != null ? audio.volume : 0.6;
+        a.play().catch(() => {});
+      }catch(e){}
+    }
+
+    // Stage 1: event horizon glow.
+    const eh = document.createElement('div');
+    eh.className = 'v2-event-horizon';
+    stage.appendChild(eh);
+
+    // Stage 2: the real 12 images, placed around the horizon in a circle.
+    const cx = 50, cy = 50, ring = 34; // percent-based positions
+    const imgEls = [];
+    images.forEach((src, i) => {
+      const angle = (i / Math.max(images.length, 1)) * Math.PI * 2;
+      const img = document.createElement('img');
+      img.className = 'v2-memory-img';
+      img.alt = '';
+      // Same defensive pattern as v1: a missing/404'd image just hides
+      // itself instead of showing a broken-image icon or breaking the tween.
+      img.onerror = () => { img.style.display = 'none'; };
+      img.src = src;
+      img.style.left = (cx + Math.cos(angle) * ring) + '%';
+      img.style.top = (cy + Math.sin(angle) * ring) + '%';
+      stage.appendChild(img);
+      imgEls.push(img);
+    });
+
+    const tl = gsap.timeline();
+    tl.fromTo(eh, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'sine.out' }, 0);
+
+    if (imgEls.length){
+      const inStep = 2.2 / imgEls.length;
+      imgEls.forEach((img, i) => {
+        tl.fromTo(img, { opacity: 0, scale: 0.5 },
+          { opacity: 1, scale: 1, duration: 0.6, ease: 'sine.out' }, 0.5 + i * (inStep * 0.4));
+      });
+      // Stage 3: pull inward toward center.
+      imgEls.forEach((img, i) => {
+        tl.to(img, {
+          left: '50%', top: '50%', scale: 0.05, opacity: 0, filter: 'blur(2px)',
+          duration: 2.0, ease: 'power2.in'
+        }, 3.2 + i * 0.05);
+      });
+    }
+
+    // Stage 4: darkness collapse.
+    const dark = document.createElement('div');
+    dark.className = 'v2-darkness';
+    stage.appendChild(dark);
+    tl.fromTo(dark, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'sine.in' }, 5.8);
+    tl.to(eh, { opacity: 0, duration: 0.6 }, 5.8);
+
+    // Stage 5: moon reveal, reusing the site's existing moon markup.
+    const moonClone = buildV2Moon();
+    if (moonClone){
+      moonClone.style.opacity = '0';
+      stage.appendChild(moonClone);
+      tl.to(moonClone, { opacity: 1, duration: 1.4, ease: 'sine.out' }, 6.6);
+    }
+
+    // Stage 6: final text — same copy/behavior as v1.
+    tl.call(revealText, null, 8.0);
+  } catch (err){
+    // Any unexpected failure anywhere in the v2 prototype falls back to the
+    // known-working v1 celebration rather than leaving a broken overlay up.
+    console.error('celebration v2 failed, falling back to v1:', err);
+    if (legacyMontage) legacyMontage.style.display = '';
+    if (legacyHorizon) legacyHorizon.style.display = '';
+    try{ triggerCelebration(milestone, undefined, images, audio); }catch(e2){}
+  }
+}
+
 function openMainChannel(){
   window.open('https://www.youtube.com/@GetTheMoon', '_blank', 'noopener');
 }
@@ -908,9 +1115,18 @@ document.getElementById('moonStage').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMainChannel(); }
 });
 
-document.getElementById('celebrate').addEventListener('click', function(){ this.classList.remove('show'); });
+document.getElementById('celebrate').addEventListener('click', function(){
+  this.classList.remove('show');
+  // CP3B: if a v2 celebration is mid-run, tear down its dynamic stage/timeline
+  // instead of leaving it running under the now-hidden overlay. No-op for v1.
+  if (this._v2Cleanup) this._v2Cleanup();
+});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape'){ document.getElementById('celebrate').classList.remove('show'); }
+  if (e.key === 'Escape'){
+    const celebrateEl = document.getElementById('celebrate');
+    celebrateEl.classList.remove('show');
+    if (celebrateEl._v2Cleanup) celebrateEl._v2Cleanup();
+  }
 });
 
 let avatarClicks = 0;
@@ -941,14 +1157,23 @@ setInterval(fetchStats, CONFIG.pollMs);
 // once celebration QA is done; it is not meant to ship long-term.
 (function initCelebrateTestHook(){
   let forceTest = false;
+  let useV2 = false;
   try{
-    forceTest = new URLSearchParams(window.location.search).get('celebrate') === '1';
-  }catch(e){ forceTest = false; }
+    const params = new URLSearchParams(window.location.search);
+    forceTest = params.get('celebrate') === '1';
+    // CP3B: ?celebrate=1&visual=v2 opts into the new prototype for manual QA
+    // only. Without &visual=v2, behavior is byte-for-byte the same as before.
+    useV2 = params.get('visual') === 'v2';
+  }catch(e){ forceTest = false; useV2 = false; }
   if (!forceTest) return;
   // Small delay so this fires after initial page setup (orbit markers,
   // first stats/videos fetch kicked off) rather than racing DOM/GSAP setup.
   setTimeout(() => {
-    triggerCelebration(effectiveGoal(), undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+    if (useV2){
+      triggerCelebrationV2(effectiveGoal(), CONFIG.celebrationImages, CONFIG.celebrationAudio);
+    } else {
+      triggerCelebration(effectiveGoal(), undefined, CONFIG.celebrationImages, CONFIG.celebrationAudio);
+    }
   }, 500);
 })();
 
