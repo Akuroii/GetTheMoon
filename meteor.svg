@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Comet">
+  <defs>
+    <radialGradient id="cometBody" cx="38%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#fff3d6"/>
+      <stop offset="45%" stop-color="#f7c860"/>
+      <stop offset="100%" stop-color="#8f6212"/>
+    </radialGradient>
+    <linearGradient id="cometTail" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c6fee" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#7c6fee" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <path d="M4 54 Q22 40 30 30" stroke="url(#cometTail)" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M10 50 Q24 38 30 30" stroke="url(#cometTail)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="38" cy="24" r="14" fill="url(#cometBody)"/>
+  <circle cx="38" cy="24" r="17" fill="none" stroke="#f5c453" stroke-opacity="0.35" stroke-width="2"/>
+</svg>
