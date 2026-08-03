@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/*
+  Color and font tokens below are V1's actual values, confirmed from its
+  source CSS — not re-derived from the screenshot or guessed. Glass tokens
+  are new: V1 has zero backdrop-filter usage anywhere today.
+*/
+
+:root {
+  /* color — carried over from V1 */
+  --bg: #04040a;
+  --surface: #0d0d1f;
+  --text: #f0eefc;
+  --text-dim: #9d98c2;
+  --violet: #7c6fee;
+  --pink: #ff5ea8;
+  --gold: #f5c453;
+  --line: rgba(240, 238, 252, 0.1);
+  --nebula-violet: #6b4fff;
+
+  /* glass — new for V2. Dark/violet-tinted per the brief; never bright white. */
+  --glass-bg: rgba(13, 13, 31, 0.55);
+  --glass-border: rgba(124, 111, 238, 0.18);
+  --glass-blur: 16px;
+
+  /* type — V1's existing three-role system, kept as-is. Values point at the
+     next/font-loaded variables set on <html> in app/layout.tsx (self-hosted,
+     preloaded) rather than bare family names pulled from a CDN link tag. */
+  --font-display: var(--font-spectral), ui-serif, Georgia, serif; /* headlines, celebration */
+  --font-ui: var(--font-space-grotesk), ui-sans-serif, system-ui; /* labels, chrome, buttons */
+  --font-data: var(--font-plex-mono), ui-monospace, monospace; /* subscriber count, dates, views */
+  --font-ar: var(--font-tajawal), var(--font-ui); /* Arabic body */
+
+  /* motion — shared vocabulary so every component reaches for the same feel */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-standard: 400ms;
+  --duration-count-up: 900ms;
+
+  /* spacing — one deliberate addition, not a parallel scale. Tailwind's own
+     spacing utilities (p-6, gap-8, etc.) cover everything else; this token
+     exists because the rhythm *between* major page sections is a specific
+     project decision, not a generic size. */
+  --space-section: clamp(4rem, 8vw, 8rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* single mobile breakpoint, matching V1 */
+@media (max-width: 560px) {
+  :root {
+    --duration-standard: 300ms;
+  }
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+
+[lang="ar"] {
+  font-family: var(--font-ar);
+}
+
+/* AvatarOrbit keyframes */
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gravity-pull {
+  0% {
+    transform: translate(
+      calc(cos(var(--gravity-angle)) * 48cqi),
+      calc(sin(var(--gravity-angle)) * 48cqi)
+    );
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes nebula-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes nebula-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(5%, -5%) scale(1.1);
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    transform: translateX(-100px) rotate(35deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(300px) rotate(35deg);
+    opacity: 0;
+  }
+}
+
+@keyframes marker-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
