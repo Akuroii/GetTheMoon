@@ -1,9 +1,20 @@
+// Only the production origin may read this response. Same-origin calls from the site's
+// own frontend are unaffected either way — browsers never apply CORS to same-origin
+// requests — this only stops other sites from embedding/reading this endpoint directly.
+const ALLOWED_ORIGIN = 'https://getthemoon.vercel.app';
+
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
   const API_KEY = process.env.YOUTUBE_API_KEY;
-  const CHANNEL_ID = process.env.CHANNEL_ID || 'UCLtCWRYhYmMof8kw7Ib1oqA'; // GetTheMoon
+  const CHANNEL_ID = process.env.CHANNEL_ID;
 
   if (!API_KEY) {
     return res.status(500).json({ error: 'missing_api_key' });
+  }
+  if (!CHANNEL_ID) {
+    return res.status(500).json({ error: 'missing_channel_id' });
   }
 
   try {

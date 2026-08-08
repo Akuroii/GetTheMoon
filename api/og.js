@@ -22,8 +22,8 @@ function h(type, props, ...children) {
   };
 }
 
-const GOAL = 100000;
-const MILESTONES = [1000, 5000, 10000, 25000, 50000, 75000, 100000];
+const GOAL = 500000;
+const MILESTONES = [1000, 5000, 10000, 25000, 50000, 75000, 100000, 150000, 200000, 250000, 300000, 400000, 500000];
 
 // Google Fonts static .woff2/.ttf files for the exact weights used on the
 // site. Fetched at request time (edge runtime has no filesystem) and cached
@@ -73,20 +73,25 @@ async function loadFonts() {
 
 export default async function handler(req) {
   const API_KEY = process.env.YOUTUBE_API_KEY;
-  const CHANNEL_ID = process.env.CHANNEL_ID || 'UCLtCWRYhYmMof8kw7Ib1oqA';
+  const CHANNEL_ID = process.env.CHANNEL_ID;
 
   let subs = null;
   let avatar = null;
 
+  // No hardcoded fallback: if either var is missing, subs simply stays null and the
+  // branded fallback card below renders — this endpoint's existing philosophy is to
+  // never 500 a social-preview image, a misconfigured env var is no exception.
   try {
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${CHANNEL_ID}&key=${API_KEY}`;
-    const r = await fetch(url);
-    const json = await r.json();
-    if (json.items && json.items.length) {
-      subs = parseInt(json.items[0].statistics.subscriberCount, 10);
-      // Optional chaining: some channels/API responses omit the medium
-      // thumbnail. Missing avatar should never break the whole card.
-      avatar = json.items[0]?.snippet?.thumbnails?.medium?.url || null;
+    if (API_KEY && CHANNEL_ID) {
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${CHANNEL_ID}&key=${API_KEY}`;
+      const r = await fetch(url);
+      const json = await r.json();
+      if (json.items && json.items.length) {
+        subs = parseInt(json.items[0].statistics.subscriberCount, 10);
+        // Optional chaining: some channels/API responses omit the medium
+        // thumbnail. Missing avatar should never break the whole card.
+        avatar = json.items[0]?.snippet?.thumbnails?.medium?.url || null;
+      }
     }
   } catch (e) {
     // Fall through to the fallback card below — never throw a 500 for a social preview.

@@ -6,15 +6,26 @@ function parseISODuration(iso) {
   return h * 3600 + mi * 60 + s;
 }
 
-export default async function handler(req, res) {
-  const API_KEY = process.env.YOUTUBE_API_KEY;
-  const CHANNEL_ID = process.env.CHANNEL_ID || 'UCLtCWRYhYmMof8kw7Ib1oqA'; // GetTheMoon
+// Only the production origin may read this response — see api/stats.js for why this
+// doesn't affect the site's own same-origin fetch calls.
+const ALLOWED_ORIGIN = 'https://getthemoon.vercel.app';
 
-  const UPLOADS_PLAYLIST = 'UU' + CHANNEL_ID.slice(2);
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  const API_KEY = process.env.YOUTUBE_API_KEY;
+  const CHANNEL_ID = process.env.CHANNEL_ID;
 
   if (!API_KEY) {
     return res.status(500).json({ error: 'missing_api_key' });
   }
+  if (!CHANNEL_ID) {
+    return res.status(500).json({ error: 'missing_channel_id' });
+  }
+
+  // Every channel's "uploads" playlist ID is the channel ID with "UC" swapped for "UU".
+  const UPLOADS_PLAYLIST = 'UU' + CHANNEL_ID.slice(2);
 
   try {
     const plUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${UPLOADS_PLAYLIST}&maxResults=50&key=${API_KEY}`;

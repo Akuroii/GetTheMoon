@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get The Moon · 100K</title>
-<meta name="description" content="Get The Moon — chasing 100,000 subscribers, one orbit at a time.">
-<meta property="og:title" content="Get The Moon · Chasing 100K">
-<meta property="og:description" content="Watch the subscriber count rise toward 100,000, live.">
+<title>Get The Moon · 500K</title>
+<meta name="description" content="Get The Moon — chasing 500,000 subscribers, one orbit at a time.">
+<meta property="og:title" content="Get The Moon · Chasing 500K">
+<meta property="og:description" content="Watch the subscriber count rise toward 500,000, live.">
 <meta property="og:image" content="https://getthemoon.vercel.app/api/og">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://getthemoon.vercel.app/">
+<link rel="canonical" href="https://getthemoon.vercel.app/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Get The Moon · Chasing 100K">
-<meta name="twitter:description" content="Watch the subscriber count rise toward 100,000, live.">
+<meta name="twitter:title" content="Get The Moon · Chasing 500K">
+<meta name="twitter:description" content="Watch the subscriber count rise toward 500,000, live.">
 <meta name="twitter:image" content="https://getthemoon.vercel.app/api/og">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -22,6 +23,26 @@
 <link rel="alternate icon" href="assets/meteor-32.png">
 <link rel="apple-touch-icon" href="assets/meteor-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Get The Moon",
+  "url": "https://getthemoon.vercel.app/",
+  "description": "Get The Moon — chasing 500,000 subscribers, one orbit at a time.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Get The Moon",
+    "sameAs": [
+      "https://www.youtube.com/@GetTheMoon",
+      "https://www.youtube.com/@GetTheMoonus",
+      "https://www.tiktok.com/@getthemoon923",
+      "https://www.facebook.com/profile.php?id=61584399300636",
+      "https://discord.gg/ANdBQrkaCn"
+    ]
+  }
+}
+</script>
 <style>
 
   :root{
@@ -496,7 +517,7 @@
         <path class="belt-progress" id="beltProgress" fill="none"></path>
       </svg>
       <div class="belt-markers" id="beltMarkers" role="group" aria-label="Subscriber milestones"></div>
-      <div class="belt-flank end" id="beltFlankEnd" aria-hidden="true">100,000</div>
+      <div class="belt-flank end" id="beltFlankEnd" aria-hidden="true">500,000</div>
     </div>
 
     <div class="belt-readout">
@@ -542,13 +563,20 @@
   <div class="hint" id="celebrateHint">click anywhere to close</div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 const CONFIG = {
-  goal: 100000,
+  goal: 500000,
   testGoal: null,
   pollMs: 30000,
-  milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000],
+  // Full milestone list — every stop the text readout (mbPrev/mbNext) can step through.
+  milestones: [1000, 5000, 10000, 25000, 50000, 75000, 100000, 150000, 200000, 250000, 300000, 400000, 500000],
+  // Curated subset actually plotted as physical markers on the belt. Markers sit at their
+  // real value-fraction of the goal (not evenly by index), so with all 13 milestones the
+  // first seven (1K-100K) would land within the first 20% of the belt's length and overlap
+  // into an unreadable cluster. This subset keeps the belt exactly as legible as the old
+  // 7-marker version while the readout above still gives full 13-stop granularity.
+  beltMarkers: [25000, 100000, 200000, 300000, 400000, 500000],
   // Montage shown during milestone celebrations. All 12 provided pieces, unfiltered
   // per explicit direction — note images 09/12 are captioned for a past "10K" milestone
   // specifically, so they'll surface even when celebrating other milestones.
@@ -640,16 +668,19 @@ function effectiveGoal(){ return CONFIG.testGoal || CONFIG.goal; }
 function buildBeltMarkers(){
   const wrap = document.getElementById('beltMarkers');
   wrap.innerHTML = '';
-  beltMarkerEls = CONFIG.milestones.map((value, i) => {
-    const isGoal = i === CONFIG.milestones.length - 1;
+  // Physical markers come from the curated CONFIG.beltMarkers subset, not the full
+  // milestones list — see the comment on CONFIG.beltMarkers for why. Clicking/focusing
+  // a marker still jumps the readout to that value's real position in the full list.
+  beltMarkerEls = CONFIG.beltMarkers.map((value, i) => {
+    const isGoal = value === effectiveGoal();
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'belt-marker ' + (isGoal ? 'goal' : 'tier-' + tierForIndex(i));
     btn.dataset.index = i;
     btn.dataset.value = value;
     btn.innerHTML = `<svg><use href="#${isGoal ? 'moonMarker' : 'beltPlanet'}"></use></svg><span class="belt-tooltip"></span>`;
-    btn.addEventListener('click', () => { milestoneIdx = i; renderMilestone(); btn.focus(); });
-    btn.addEventListener('focus', () => { milestoneIdx = i; renderMilestone(); });
+    btn.addEventListener('click', () => { milestoneIdx = CONFIG.milestones.indexOf(value); renderMilestone(); btn.focus(); });
+    btn.addEventListener('focus', () => { milestoneIdx = CONFIG.milestones.indexOf(value); renderMilestone(); });
     wrap.appendChild(btn);
     return btn;
   });
@@ -686,13 +717,12 @@ function layoutBelt(){
 
   const s = STRINGS[currentLang];
   beltMarkerEls.forEach((btn, i) => {
-    const value = CONFIG.milestones[i];
+    const value = CONFIG.beltMarkers[i];
     const vFrac = Math.max(0, Math.min(1, value / goal));
     const p = trackPath.getPointAtLength(len * vFrac);
     btn.style.left = p.x + 'px';
     btn.style.top = p.y + 'px';
     btn.classList.toggle('reached', currentSubs >= value);
-    btn.classList.toggle('active', i === milestoneIdx);
     const state = currentSubs >= value ? s.orbitReached : s.orbitUpcoming;
     const label = `${value.toLocaleString()} ${s.subscribers.toLowerCase()} — ${state}`;
     btn.setAttribute('aria-label', label);
@@ -713,17 +743,14 @@ function renderMilestone(){
   const pct = start === end ? 1 : Math.max(0, Math.min(1, (currentSubs - start) / (end - start)));
   document.getElementById('orbitReadoutText').textContent =
     `${start.toLocaleString()} → ${end.toLocaleString()} · ${(pct * 100).toFixed(1)}%`;
-  beltMarkerEls.forEach((btn, i) => btn.classList.toggle('active', i === milestoneIdx));
 }
 document.getElementById('mbPrev').addEventListener('click', () => {
   milestoneIdx = Math.max(0, milestoneIdx - 1);
   renderMilestone();
-  beltMarkerEls[milestoneIdx].focus();
 });
 document.getElementById('mbNext').addEventListener('click', () => {
   milestoneIdx = Math.min(CONFIG.milestones.length - 1, milestoneIdx + 1);
   renderMilestone();
-  beltMarkerEls[milestoneIdx].focus();
 });
 
 buildBeltMarkers();
@@ -738,8 +765,8 @@ let lastSubs = null;
 let firstLoad = true;
 document.getElementById('countNum').innerHTML = '<span class="count-pulse"></span>';
 
-// ---- Real 100K celebration gating (once per browser) ----
-const CELEBRATION_FLAG_KEY = 'gtm_celebrated_100k';
+// ---- Real goal celebration gating (once per browser) ----
+const CELEBRATION_FLAG_KEY = 'gtm_last_celebrated_goal';
 function safeLocalStorageGet(key){
   try{ return window.localStorage.getItem(key); }catch(e){ return null; }
 }
@@ -1041,7 +1068,7 @@ setInterval(fetchStats, CONFIG.pollMs);
 
 // ---- Temporary public test hook: ?celebrate=1 ----
 // For manual QA only. Bypasses maybeTriggerRealCelebration() entirely, so it
-// never reads or writes CELEBRATION_FLAG_KEY ("gtm_celebrated_100k").
+// never reads or writes CELEBRATION_FLAG_KEY ("gtm_last_celebrated_goal").
 (function initCelebrateTestHook(){
   let forceTest = false;
   try{
