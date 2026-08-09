@@ -304,6 +304,8 @@
   .back-to-top:hover{ border-color: var(--violet); color: var(--text); }
   .back-to-top:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
   @media (max-width:560px){ .back-to-top{ right:14px; bottom:14px; } }
+  html[dir="rtl"] .back-to-top{ right:auto; left:20px; }
+  @media (max-width:560px){ html[dir="rtl"] .back-to-top{ left:14px; } }
 
   .timeline-wrap{ max-width:840px; margin:0 auto; position:relative; }
   .timeline-track{
@@ -675,16 +677,16 @@
 
   <div class="section-head reveal" id="txtRecentHead">Recent uploads</div>
   <div class="carousel-wrap reveal">
-    <button class="carousel-arrow left" data-target="carouselRecent" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="carousel-arrow left" data-target="carouselRecent" aria-label="Previous videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     <div class="carousel" id="carouselRecent"><div class="carousel-msg">loading…</div></div>
-    <button class="carousel-arrow right" data-target="carouselRecent" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <button class="carousel-arrow right" data-target="carouselRecent" aria-label="Next videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
 
   <div class="section-head reveal" id="txtPopularHead">Fan favorites</div>
   <div class="carousel-wrap reveal">
-    <button class="carousel-arrow left" data-target="carouselPopular" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="carousel-arrow left" data-target="carouselPopular" aria-label="Previous videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     <div class="carousel" id="carouselPopular"><div class="carousel-msg">loading…</div></div>
-    <button class="carousel-arrow right" data-target="carouselPopular" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <button class="carousel-arrow right" data-target="carouselPopular" aria-label="Next videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
 
   <div class="section-head reveal" id="txtTimelineHead">Every long upload</div>
@@ -1287,7 +1289,7 @@ function timelineAxisMonths(firstMs, lastMs){
     months.push(d.getTime());
     d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
   }
-  const MAX_LABELS = 7;
+  const MAX_LABELS = window.innerWidth < 560 ? 4 : 7;
   if (months.length <= MAX_LABELS) return months;
   const step = Math.ceil(months.length / MAX_LABELS);
   return months.filter((_, i) => i % step === 0);
