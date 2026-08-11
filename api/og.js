@@ -57,12 +57,30 @@ const STARS = Array.from({ length: 40 }, (_, i) => ({
   o: 0.25 + ((i * 13) % 40) / 100
 }));
 
+// A slow/hanging request is a different failure mode than an outright-failed one —
+// Promise.allSettled below already turns a rejected font fetch into a safe fallback,
+// but without an explicit timeout a *stalled* request can sit open for a long time
+// before that rejection ever happens, well past what a link-unfurl bot (Slack/Discord/
+// Twitter previews) will wait for. This bounds any single fetch so one slow host can't
+// drag the whole endpoint down. Used for both the font fetches and the YouTube call.
+const FONT_FETCH_TIMEOUT_MS = 3000;
+const YOUTUBE_FETCH_TIMEOUT_MS = 4000;
+async function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function loadFonts() {
-  // Each font loads independently — one bad/rotated URL degrades that one
+  // Each font loads independently — one bad/rotated/slow URL degrades that one
   // font to the system sans instead of killing custom fonts entirely.
   const results = await Promise.allSettled(
     FONT_SOURCES.map(async (f) => {
-      const res = await fetch(f.url);
+      const res = await fetchWithTimeout(f.url, FONT_FETCH_TIMEOUT_MS);
       if (!res.ok) throw new Error('font fetch failed: ' + f.name);
       const data = await res.arrayBuffer();
       return { name: f.name, data, weight: f.weight, style: f.style || 'normal' };
@@ -72,6 +90,13 @@ async function loadFonts() {
 }
 
 export default async function handler(req) {
+  if (!['GET', 'HEAD'].includes(req.method)) {
+    return new Response(JSON.stringify({ error: 'method_not_allowed' }), {
+      status: 405,
+      headers: { Allow: 'GET, HEAD', 'Content-Type': 'application/json' }
+    });
+  }
+
   const API_KEY = process.env.YOUTUBE_API_KEY;
   const CHANNEL_ID = process.env.CHANNEL_ID;
 
@@ -84,10 +109,14 @@ export default async function handler(req) {
   try {
     if (API_KEY && CHANNEL_ID) {
       const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${CHANNEL_ID}&key=${API_KEY}`;
-      const r = await fetch(url);
+      const r = await fetchWithTimeout(url, YOUTUBE_FETCH_TIMEOUT_MS);
       const json = await r.json();
       if (json.items && json.items.length) {
-        subs = parseInt(json.items[0].statistics.subscriberCount, 10);
+        // A hidden subscriber count omits this field entirely, which would otherwise be
+        // NaN — falling back to null (not 0) so it correctly hits the "subs === null"
+        // branded-fallback-card branch below instead of rendering "NaN subscribers".
+        const rawSubs = Number(json.items[0].statistics.subscriberCount);
+        subs = Number.isFinite(rawSubs) ? Math.max(0, Math.trunc(rawSubs)) : null;
         // Optional chaining: some channels/API responses omit the medium
         // thumbnail. Missing avatar should never break the whole card.
         avatar = json.items[0]?.snippet?.thumbnails?.medium?.url || null;

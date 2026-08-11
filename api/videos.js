@@ -9,8 +9,15 @@ function parseISODuration(iso) {
 // Only the production origin may read this response — see api/stats.js for why this
 // doesn't affect the site's own same-origin fetch calls.
 const ALLOWED_ORIGIN = 'https://getthemoon.vercel.app';
+// GET/HEAD only — see api/stats.js for why the CORS header above doesn't cover this.
+const ALLOWED_METHODS = ['GET', 'HEAD'];
 
 export default async function handler(req, res) {
+  if (!ALLOWED_METHODS.includes(req.method)) {
+    res.setHeader('Allow', ALLOWED_METHODS.join(', '));
+    return res.status(405).json({ error: 'method_not_allowed' });
+  }
+
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
@@ -72,7 +79,7 @@ export default async function handler(req, res) {
       (a, b) => new Date(a.publishedAt) - new Date(b.publishedAt)
     );
 
-    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
+    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');
     res.status(200).json({ recent, popular, timeline, updatedAt: new Date().toISOString() });
   } catch (err) {
     console.error(err);

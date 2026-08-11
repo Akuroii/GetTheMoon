@@ -952,7 +952,7 @@ function maybeTriggerRealCelebration(subscribers, goal){
 function animateNumber(el, from, to, dur = 1200){
   const start = performance.now();
   function tick(now){
-    const p = Math.min((now - start) / dur, 1);
+    const p = Math.max(0, Math.min((now - start) / dur, 1));
     const eased = 1 - Math.pow(1 - p, 3);
     el.textContent = Math.floor(from + (to - from) * eased).toLocaleString();
     if (p < 1) requestAnimationFrame(tick);
@@ -964,7 +964,7 @@ function animateNumber(el, from, to, dur = 1200){
 function applyStats(data){
   if (firstLoad){ firstLoad = false; }
   const goal = effectiveGoal();
-  const fillPct = Math.min(data.subscribers / goal, 1);
+  const fillPct = Math.max(0, Math.min(data.subscribers / goal, 1));
 
   document.querySelector('.moon').style.setProperty('--fill', fillPct.toFixed(4));
 
